@@ -1,0 +1,90 @@
+<template>
+    <div id="dashboard">
+        <h1>Dashboard</h1>
+        <details>
+            <summary>Hier findest du eine Zusammenfassung über alle verfügbaren Berichte.</summary>
+            <p>
+                Wähle einen Bericht aus, um diesen im Detail zu erstellen. Benutze die Hauptnavigation oben, um auf
+                alle anderen Bereiche der Anwendung zuzugreifen.
+            </p>
+        </details>
+        <div class="sx-cards">
+            <aside class="sx-card">
+                <h2>Gesamtabrechnung</h2>
+                Kontostand
+                <em id="dashboard-accounts"></em>
+                <button data-navigation value="reports-accounts">auswählen</button>
+            </aside>
+            <aside class="sx-card">
+                <h2>Kategorien</h2>
+                <table id="dashboard-categories"></table>
+                <button data-navigation value="reports-categories">auswählen</button>
+            </aside>
+            <aside class="sx-card">
+                <h2>Probleme</h2>
+                <table id="dashboard-problems"></table>
+                <button data-navigation value="reports-problems">auswählen</button>
+            </aside>
+        </div>
+        <h2>Sonstige Berichte</h2>
+        <ul>
+            <li>
+                <button data-navigation value="reports-attachments">Dokumente</button>
+            </li>
+            <li>
+                <button data-navigation value="reports-cancellations">Stornierte Buchungen</button>
+            </li>
+        </ul>
+    </div>
+</template>
+
+<script type="module">
+    import {helper, page, state} from "../js/app.js";
+
+    const currency = {currency: 'EUR', style: 'currency'};
+
+    page.register('dashboard', ({render, show, listen}) => {
+        let data = state.get('dashboard') || {};
+
+        render(() => {
+            helper.set('#dashboard-accounts', 'innerHTML', (data.accounts || 0).toLocaleString('de', currency));
+            helper.set('#dashboard-accounts', 'className', data.accounts < 0 ? 'expense' : 'income');
+            helper.list('#dashboard-categories', data.categories || [], (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<th>${item.name}</th>
+<td class="${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
+`;
+                return tr;
+            });
+            helper.list('#dashboard-problems', data.problems || [], (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<th>${item.name}</th>
+<td class="${item.count > 0 ? 'sx-error' : 'sx-highlight'}">${item.count}</td>
+`;
+                return tr;
+            });
+        });
+
+        show(() => state.dispatch('dashboard', null));
+
+        listen('dashboard', (dashboard) => data = dashboard);
+    });
+</script>
+
+<style>
+    #dashboard em {
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+
+    #dashboard table {
+        width: 100%;
+    }
+
+    #dashboard td {
+        font-family: monospace;
+        text-align: right;
+    }
+</style>

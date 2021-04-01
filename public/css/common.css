@@ -1,0 +1,26 @@
+.date {
+    width: 1px;
+}
+
+.date, .amount {
+    white-space: nowrap;
+}
+
+th.amount, td.amount {
+    text-align: right;
+}
+
+.sx-table .align {
+    vertical-align: top;
+    padding-left: 2rem;
+}
+
+.align button {
+    position: absolute;
+    margin: -.3rem 0 0 -1rem;
+}
+
+.sx-table tfoot td {
+    text-align: center;
+    padding-top: 1.5em;
+}

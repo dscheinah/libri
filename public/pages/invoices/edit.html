@@ -1,0 +1,124 @@
+<template>
+    <form id="invoices-edit">
+        <h1>Beleg oder Rechnung erstellen</h1>
+        <details>
+            <summary>Hier kannst du die Daten eines Belegs oder einer Rechnung erfassen.</summary>
+            <p>
+                Gib alle verfügbaren Daten des Belegs ein. Die Bearbeitung ist nur für offene Belege und nicht
+                finalisierte Rechnungen möglich. Dokumente und Beschreibungen können aber immer verändert werden.
+                Wird ein Kontakt ausgewählt, kann dessen Adresse für den Beleg angepasst werden.
+            </p>
+        </details>
+        <div id="invoices-edit-type" class="sx-multi">
+            <div class="sx-checkbox">
+                <input type="radio" id="invoices-edit-type-1" name="type" value="1">
+                <label for="invoices-edit-type-1">Beleg</label>
+            </div>
+            <div class="sx-checkbox">
+                <input type="radio" id="invoices-edit-type-2" name="type" value="2">
+                <label for="invoices-edit-type-2">Rechnung</label>
+            </div>
+        </div>
+        <input type="date" id="invoices-edit-date" name="date" required/>
+        <label for="invoices-edit-date">Datum</label>
+        <div class="sx-control">
+            <div>
+                <input type="number" id="invoices-edit-amount" name="amount" required/>
+                <label for="invoices-edit-amount">Betrag</label>
+            </div>
+            <button type="button">
+                <span class="sx-button-icon">☰</span> Details
+            </button>
+        </div>
+        <input type="text" id="invoices-edit-description" name="description" required/>
+        <label for="invoices-edit-description">Beschreibung</label>
+        <div id="invoices-edit-document">
+            <input type="text" id="invoices-edit-reference" name="reference"/>
+            <label for="invoices-edit-reference">Referenz</label>
+            <input type="file" id="invoices-edit-file" name="document"/>
+            <label for="invoices-edit-file">Dokument</label>
+            <div class="sx-checkbox">
+                <input type="checkbox" id="invoices-edit-no-document" name="no_document"/>
+                <label for="invoices-edit-no-document">
+                    Dokument ist nicht digitalisiert vorhanden oder ein Eigenbeleg
+                </label>
+            </div>
+        </div>
+        <div class="sx-control">
+            <div>
+                <textarea id="invoices-edit-contact-address" name=contact_address" rows="4"></textarea>
+                <label for="invoices-edit-contact-address">Kontakt-Adresse</label>
+            </div>
+            <button id="invoices-edit-contact-search" type="button">
+                <span class="sx-button-icon">⌕</span> suchen
+            </button>
+        </div>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> speichern</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('invoices-edit', ({render, action, listen}) => {
+        let data = state.get('invoice') || {};
+        let edit = state.get('invoice-edit');
+        let type = state.get('invoice-type');
+        let contact = state.get('invoice-contact');
+
+        render(() => {
+            if (edit) {
+                switch (data.type) {
+                    case 1:
+                        helper.set('#invoices-edit h1', 'innerHTML', 'Beleg bearbeiten');
+                        helper.style('#invoices-edit-document', 'display', '');
+                        break;
+                    case 2:
+                        helper.set('#invoices-edit h1', 'innerHTML', 'Rechnung bearbeiten');
+                        helper.style('#invoices-edit-document', 'display', 'none');
+                        break;
+                }
+                helper.set('#invoices-edit-contact-address', 'value', data.contact ? data.contact.address : '');
+                helper.style('#invoices-edit-type', 'display', 'none');
+            } else {
+                switch (type) {
+                    case 1:
+                        helper.style('#invoices-edit-document', 'display', '');
+                        break;
+                    case 2:
+                        helper.style('#invoices-edit-document', 'display', 'none');
+                        break;
+                }
+                helper.set('#invoices-edit h1', 'innerHTML', 'Beleg oder Rechnung erstellen');
+                helper.set('#invoices-edit-contact-address', 'value', contact ? contact.address : '');
+                helper.element('#invoices-edit').type.value = type;
+                helper.style('#invoices-edit-type', 'display', '');
+            }
+            helper.set('#invoices-edit-date', 'value', edit ? data.date : '');
+            helper.set('#invoices-edit-description', 'value', edit ? data.description : '');
+            helper.set('#invoices-edit-amount', 'value', edit ? data.amount : '');
+            helper.set('#invoices-edit-reference', 'value', edit ? data.reference : '');
+            helper.set('#invoices-edit-no-document', 'checked', edit && data.no_document);
+            let disabled = edit && (data.assigned || data.finished);
+            helper.set('#invoices-edit-date', 'disabled', disabled);
+            helper.set('#invoices-edit-amount', 'disabled', disabled);
+            helper.set('#invoices-edit-contact-address', 'disabled', disabled);
+            helper.set('#invoices-edit-contact-search', 'disabled', disabled);
+        });
+
+        action('#invoices-edit [name=type]', 'input', () => {
+            state.set('invoice-type', parseInt(helper.element('#invoices-edit').type.value));
+        });
+        action('#invoices-edit', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('invoice', (invoice) => data = invoice || {});
+        listen('invoice-edit', (trigger) => edit = trigger);
+        listen('invoice-type', (value) => type = value);
+        listen('invoice-contact', (data) => contact = data);
+    });
+</script>

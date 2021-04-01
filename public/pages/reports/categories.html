@@ -1,0 +1,59 @@
+<template>
+    <h1>Kategorien</h1>
+    <details>
+        <summary>Hier kannst du den Bericht über nach Kategorien gruppierte Buchungen erstellen.</summary>
+        <p>
+            Wähle zunächst den relevanten Zeitraum und die einzubeziehenden Kategorien. Analog der Gesamtabrechnung
+            werden nur ausgeglichene und nicht stornierte Buchungen berücksichtigt.
+        </p>
+    </details>
+    <form id="reports-categories">
+        <div class="sx-multi">
+            <div class="sx-input">
+                <input type="date" id="reports-categories-start" name="start" required/>
+                <label for="reports-categories-start">Startdatum</label>
+            </div>
+            <div class="sx-input">
+                <input type="date" id="reports-categories-end" name="start" required/>
+                <label for="reports-categories-end">Enddatum</label>
+            </div>
+        </div>
+        <select id="reports-categories-categories" name="categories" multiple required></select>
+        <label for="reports-categories-categories">Kategorien</label>
+        <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('reports-categories', ({render, show, action, listen}) => {
+        let categories = [];
+
+        render(() => {
+            helper.list('#reports-categories-categories', categories, (category) => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.innerHTML = category.name;
+                return option;
+            });
+        });
+
+        show(() => state.dispatch('categories', null));
+
+        action('#reports-categories', 'submit', (event) => {
+            event.preventDefault();
+        });
+
+        listen('categories', (data) => {
+            categories = data;
+            categories.push({id: '', name: 'ohne Zuordnung'})
+        });
+    });
+</script>
+
+<style>
+    #reports-categories-categories option[value=''] {
+        font-style: italic;
+    }
+</style>

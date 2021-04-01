@@ -1,0 +1,161 @@
+<template>
+    <h1>Buchungsmaske</h1>
+    <details>
+        <summary>Hier kannst du neue Buchungen erfassen.</summary>
+        <p>
+            Du kannst mehrere Buchungen auf einmal erfassen. Die Tabelle wird sich mit jeder Eingabe automatisch
+            erweitern. Alle Eingaben werden lokal im Browser zwischengespeichert. Ebenso ist es möglich, Buchungen aus
+            CSV-Dateien der Bank zu importieren. Prüfe vor dem Buchen die Eingabe, da es nicht möglich ist, Buchungen
+            aus dem System komplett zu entfernen oder zu bearbeiten.
+        </p>
+    </details>
+    <form id="ledgers-enter">
+        <table class="sx-list">
+            <colgroup>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Konto</th>
+                    <th>Betrag</th>
+                    <th>Beschreibung</th>
+                    <th>Referenz</th>
+                    <th>Kategorie</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="ledgers-enter-list"></tbody>
+        </table>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> buchen</button>
+            <button type="button"><span class="sx-button-icon">🗎</span> importieren</button>
+        </div>
+    </form>
+    <table id="ledgers-enter-template">
+        <tr>
+            <td><input type="date" name="date[]" aria-label="Datum" required/></td>
+            <td>
+                <select name="account[]" aria-label="Konto" required></select>
+            </td>
+            <td><input type="number" name="amount[]" aria-label="Betrag" required/></td>
+            <td><input type="text" name="description[]" aria-label="Beschreibung"/></td>
+            <td><input type="text" name="reference[]" aria-label="Referenz"/></td>
+            <td>
+                <select name="category[]" aria-label="Kategorie"></select>
+            </td>
+            <td>
+                <button type="button" data-delete><span class="sx-button-icon">🗑</span> löschen</button>
+            </td>
+        </tr>
+    </table>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    const keys = ['date', 'account', 'amount', 'description', 'reference', 'category'];
+
+    page.register('ledgers-enter', ({render, show, action, listen}) => {
+        let accounts = [], categories = [], data = state.get('ledgers-enter') || {length: 1};
+
+        render(() => {
+            helper.list('#ledgers-enter-template [name^=account]', accounts, (account) => {
+                const option = document.createElement('option');
+                option.value = account.no || '';
+                option.innerHTML = [account.no, account.name].filter((v) => v).join(' - ');
+                return option;
+            });
+            helper.list('#ledgers-enter-template [name^=category]', categories, (category) => {
+                const option = document.createElement('option');
+                option.value = category.id || '';
+                option.innerHTML = category.name || '';
+                return option;
+            });
+            const template = helper.element('#ledgers-enter-template tr');
+            helper.list('#ledgers-enter-list', new Array(data.length).fill(null), (ignore, index) => {
+                const clone = template.cloneNode(true);
+                keys.forEach((key) => {
+                    if (data[key]) {
+                        clone.querySelector(`[name^=${key}]`).value = data[key][index] || '';
+                    }
+                });
+                return clone;
+            });
+        });
+
+        show(() => {
+            state.dispatch('accounts', null);
+            state.dispatch('categories', null);
+        });
+
+        action('#ledgers-enter', 'input', (event, target) => {
+            const form = new FormData(target), data = {length: helper.elements('#ledgers-enter-list tr').length};
+            let needsLine = false;
+            keys.forEach((key) => {
+                data[key] = form.getAll(`${key}[]`);
+                if (data[key][data.length - 1]) {
+                    needsLine = true;
+                }
+            });
+            if (needsLine) {
+                data.length++;
+            }
+            state.dispatch('ledgers-enter', data);
+        });
+        action('#ledgers-enter [data-delete]', 'click', (event) => {
+            let tr = event.target.parentNode;
+            while (!(tr instanceof HTMLTableRowElement)) {
+                tr = tr.parentNode;
+            }
+            tr.parentNode.removeChild(tr);
+        });
+        action('#ledgers-enter', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('accounts', (data) => {
+            data.unshift({});
+            accounts = data;
+        });
+        listen('categories', (data) => {
+            data.unshift({});
+            categories = data;
+        });
+        listen('ledgers-enter', (enter) => data = enter);
+    });
+</script>
+
+<style>
+    #ledgers-enter tbody tr:only-child button {
+        visibility: hidden;
+    }
+
+    #ledgers-enter-template {
+        display: none;
+    }
+
+    @media only screen and (max-width: 900px) {
+        #ledgers-enter tr {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            margin-top: 1.5em;
+        }
+
+        #ledgers-enter th {
+            padding-top: 0;
+        }
+
+        #ledgers-enter td {
+            border: none;
+        }
+    }
+</style>

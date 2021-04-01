@@ -1,0 +1,34 @@
+<template>
+    <h1>Dokumente</h1>
+    <details>
+        <summary>Hier kannst du den Bericht über alle Dokumente von Belegen und Rechnungen erstellen.</summary>
+        <p>
+            Wähle zunächst den relevanten Zeitraum. Es werden alle in diesem Zeitraum vorliegenden Dokumente gesammelt.
+            Ebenso wird eine Übersicht erstellt, welche Dokumente zu welchem Beleg gehören und für welche Belege kein
+            Dokument vorliegt.
+        </p>
+    </details>
+    <form id="reports-attachments">
+        <div class="sx-multi">
+            <div class="sx-input">
+                <input type="date" id="reports-attachments-start" name="start" required/>
+                <label for="reports-attachments-start">Startdatum</label>
+            </div>
+            <div class="sx-input">
+                <input type="date" id="reports-attachments-end" name="start" required/>
+                <label for="reports-attachments-end">Enddatum</label>
+            </div>
+        </div>
+        <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
+    </form>
+</template>
+
+<script type="module">
+    import {page} from '../../js/app.js';
+
+    page.register('reports-attachments', ({action}) => {
+        action('#reports-attachments', 'submit', (event) => {
+            event.preventDefault();
+        });
+    });
+</script>

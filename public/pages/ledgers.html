@@ -1,0 +1,159 @@
+<template>
+    <form id="ledgers">
+        <h1>Konten</h1>
+        <details>
+            <summary>Hier findest du die Übersicht aller Konten und deren Buchungen.</summary>
+            <p>
+                Du kannst in der Übersicht suchen und diese auf ein Konto einschränken. Ebenso kannst du mit der
+                Buchungsmaske neue Buchungen erfassen oder importieren. Die Liste enthält auch stornierte Buchungen.
+                Hervorgehobene Zeilen müssen noch ausgeglichen werden.
+            </p>
+        </details>
+        <div id="ledgers-accounts" class="sx-tabs"></div>
+        <table class="sx-list">
+            <colgroup>
+                <col>
+                <col class="account">
+                <col class="category">
+                <col>
+                <col>
+                <col class="sx-action">
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th class="account">Konto</th>
+                    <th class="category">Kategorie</th>
+                    <th>Beschreibung</th>
+                    <th class="amount">Betrag</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="ledgers-list"></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6">
+                        <button type="button" disabled>
+                            <span class="sx-button-icon">⊆</span> weitere Buchungen laden
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="sx-actions">
+            <button type="button" value="ledgers-enter" data-navigation>
+                <span class="sx-button-icon">＋</span> buchen
+            </button>
+            <div class="sx-fill">
+                <div class="sx-control">
+                    <input
+                        type="search"
+                        placeholder="Suche in Beschreibung und Nummern"
+                        name="search"
+                        aria-label="Suche in Beschreibung und Nummern"
+                    />
+                    <button type="submit"><span class="sx-button-icon">🔎</span> suchen</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'}, date = {year: '2-digit', month: '2-digit', day: '2-digit'};
+
+    function load() {
+        const form = helper.element('#ledgers');
+        state.dispatch('ledgers', {
+            account: form.account ? form.account.value : null,
+            search: form.search.value,
+        });
+    }
+
+    page.register('ledgers', ({render, show, action, listen}) => {
+        let accounts = state.get('accounts') || [];
+        let data = state.get('ledgers') || [];
+
+        render(() => {
+            helper.list('#ledgers-accounts', accounts, (account) => {
+                const label = document.createElement('label');
+                label.classList.add('sx-tab');
+                let name = [account.no, account.name].filter((v) => v);
+                label.innerHTML = `<input type="radio" name="account" value="${account.no}">${name.join(' - ')}`;
+                return label;
+            });
+            helper.list('#ledgers-list', data, (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<td class="date">${new Date(item.date).toLocaleDateString('de', date)}</td>
+<td class="account">${item.account.description}</td>
+<td class="category">${item.category || ''}</td>
+<td>${item.description}</td>
+<td class="amount ${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
+<td><button type="button" value="${item.id}" data-details><span class="sx-button-icon">▽</span> mehr</button></td>
+`;
+                if (item.canceled) {
+                    tr.classList.add('canceled');
+                } else if (!item.assigned) {
+                    tr.classList.add('sx-highlight');
+                }
+                return tr;
+            });
+        });
+
+        show(() => {
+            state.dispatch('accounts', null);
+            load();
+        });
+
+        action('#ledgers [name=account]', 'input', (event) => {
+            helper.elements('#ledgers .sx-tab').forEach((element) => element.classList.remove('sx-selected'));
+            if (event.target.checked) {
+                event.target.parentNode.classList.add('sx-selected');
+            }
+            load();
+        });
+        action('#ledgers .sx-selected', 'click', () => {
+            helper.set('#ledgers :checked', 'type', 'checkbox');
+        });
+        action('#ledgers', 'submit', (event) => {
+            event.preventDefault();
+            load();
+        });
+        action('#ledgers [data-details]', 'click', (event, target) => {
+            state.dispatch('ledger', target.value);
+            page.show('ledgers-details');
+        });
+
+        listen('accounts', (data) => accounts = data);
+        listen('ledgers', (ledgers) => data = ledgers);
+    });
+</script>
+
+<style>
+    #ledgers tbody {
+        font-family: monospace;
+    }
+
+    #ledgers .canceled {
+        opacity: .2;
+    }
+
+    #ledgers .canceled button {
+        display: none;
+    }
+
+    @media only screen and (max-width: 900px) {
+        #ledgers .account {
+            display: none;
+        }
+    }
+
+    @media only screen and (max-width: 640px) {
+        #ledgers .category {
+            display: none;
+        }
+    }
+</style>

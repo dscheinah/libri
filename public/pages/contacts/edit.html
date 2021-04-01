@@ -1,0 +1,50 @@
+<template>
+    <h1>Kontakt <span id="contacts-edit-type"></span></h1>
+    <details>
+        <summary>Hier kannst du einen Kontakt bearbeiten oder hinzufügen.</summary>
+        <p>
+            Gib alle relevanten Daten ein. Die Adresse wird für die Rechnungen verwendet. Ist keine vorhanden, wird nur
+            der Name übertragen. Änderungen wirken sich nicht auf bereits ausgeglichene Belege und finalisierte
+            Rechnungen aus.
+        </p>
+    </details>
+    <form id="contacts-edit">
+        <input type="text" id="contacts-edit-name" name="name" required/>
+        <label for="contacts-edit-name">Name</label>
+        <input type="text" id="contacts-edit-mail" name="mail"/>
+        <label for="contacts-edit-mail">E-Mail</label>
+        <input type="text" id="contacts-edit-phone" name="phone"/>
+        <label for="contacts-edit-phone">Telefon</label>
+        <textarea id="contacts-edit-address" name="address" rows="4"></textarea>
+        <label for="contacts-edit-address">
+            Adresse <small>(komplette Adresse mit Namen für die Rechnungen)</small>
+        </label>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> speichern</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('contacts-edit', ({render, action, listen}) => {
+        let data = state.get('contact') || {}, edit = state.get('contact-edit');
+
+        render(() => {
+            helper.set('#contacts-edit-type', 'innerHTML', edit ? 'bearbeiten' : 'hinzufügen');
+            helper.set('#contacts-edit-name', 'value', edit ? data.name : '');
+            helper.set('#contacts-edit-mail', 'value', edit ? data.mail : '');
+            helper.set('#contacts-edit-phone', 'value', edit ? data.phone : '');
+            helper.set('#contacts-edit-address', 'value', edit ? data.address : '');
+        });
+
+        action('#contacts-edit', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('contact', (contact) => data = contact || {});
+        listen('contact-edit', (trigger) => edit = trigger);
+    });
+</script>

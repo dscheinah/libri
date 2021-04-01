@@ -1,0 +1,113 @@
+<template>
+    <h1>Buchung</h1>
+    <details>
+        <summary>Hier findest du alle Details und Aktionen zu einer Buchung.</summary>
+        <p>
+            Du kannst offene Buchungen mit Belegen oder Rechnungen ausgleichen. Ist der Ausgleich erfolgt, findest du an
+            dieser Stelle eine Übersicht, womit ausgeglichen wurde. Alternativ kann die Buchung storniert
+            werden, wenn es sich um eine fehlerhafte Buchung handelt. Eine Bearbeitung ist bis auf die Änderung der
+            Kategorie ansonsten nicht möglich.
+        </p>
+    </details>
+    <table id="ledgers-details">
+        <tr>
+            <th>Ausgleich</th>
+            <td>
+                <span id="ledgers-details-assignable" class="sx-highlight">offen</span>
+                <ul id="ledgers-details-assigned"></ul>
+            </td>
+            <td class="align">
+                <button id="ledgers-details-assign" value="ledgers-assign" data-navigation>
+                    <span class="sx-button-icon">➾</span> ausgleichen
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <th>Nummer</th>
+            <td id="ledgers-details-id"></td>
+        </tr>
+        <tr>
+            <th>Datum</th>
+            <td id="ledgers-details-date"></td>
+        </tr>
+        <tr>
+            <th>Konto</th>
+            <td id="ledgers-details-account"></td>
+        </tr>
+        <tr>
+            <th>Kategorie</th>
+            <td id="ledgers-details-category"></td>
+            <td class="align"><button><span class="sx-button-icon">↔</span> ändern</button></td>
+        </tr>
+        <tr>
+            <th>Beschreibung</th>
+            <td id="ledgers-details-description"></td>
+        </tr>
+        <tr>
+            <th>Betrag</th>
+            <td id="ledgers-details-amount"></td>
+        </tr>
+        <tr>
+            <th>Referenz</th>
+            <td id="ledgers-details-reference"></td>
+        </tr>
+    </table>
+    <div class="sx-actions">
+        <button id="ledgers-details-cancel"><span class="sx-button-icon">🗑</span> stornieren</button>
+    </div>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'}, date = {year: 'numeric', month: '2-digit', day: '2-digit'};
+
+    page.register('ledgers-details', ({render, action, listen}) => {
+        let data = state.get('ledger') || {};
+
+        render(() => {
+            helper.list('#ledgers-details-assigned', data.invoices, (invoice) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<button value="${invoice.id}" data-invoice>${invoice.description}</button>`;
+                return li;
+            });
+            helper.style('#ledgers-details-assigned', 'display', data.invoices.length ? '' : 'none');
+            helper.style('#ledgers-details-assignable', 'display', data.assigned ? 'none' : '');
+            helper.style('#ledgers-details-assign', 'display', data.assigned ? 'none' : '');
+            helper.set('#ledgers-details-id', 'innerHTML', data.id || '');
+            helper.set('#ledgers-details-date', 'innerHTML', new Date(data.date).toLocaleDateString('de', date));
+            helper.set('#ledgers-details-account', 'innerHTML', data.account.description || '');
+            helper.set('#ledgers-details-category', 'innerHTML', data.category || '');
+            helper.set('#ledgers-details-description', 'innerHTML', data.description || '');
+            helper.set('#ledgers-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
+            helper.set('#ledgers-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
+            helper.set('#ledgers-details-reference', 'innerHTML', data.reference || '');
+        });
+
+        action('#ledgers-details [data-invoice]', 'click', (event, target) => {
+            state.dispatch('invoice', target.value);
+            page.show('invoices-details');
+        });
+        action('#ledgers-details-cancel', 'click', () => {
+            confirm('Soll die Buchung storniert werden? Das kann nicht rückgängig gemacht werden.');
+        });
+
+        listen('ledger', (ledger) => data = ledger || {});
+    });
+</script>
+
+<style>
+    #ledgers-details-assigned {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    #ledgers-details-assigned button {
+        font-size: inherit;
+        border-radius: 0;
+        width: auto;
+        height: auto;
+        white-space: normal;
+    }
+</style>

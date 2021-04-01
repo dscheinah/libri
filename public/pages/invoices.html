@@ -1,0 +1,131 @@
+<template>
+    <form id="invoices">
+        <h1>Belege &amp; Rechnungen</h1>
+        <details>
+            <summary>Hier findest du eine Übersicht über alle Belege und Rechnungen.</summary>
+            <p>
+                Der Reiter Belege dient der Verwaltung aller vorliegenden Ein- und Ausgangsbelege. Unter dem Reiter
+                Rechnungen werden spezielle Belege verwaltet, die zur Zahlungsaufforderung oder als Gutschrift an
+                Kontakte gesendet werden sollen. Hervorgehobene Zeilen müssen noch bearbeitet werden. Belege können auch
+                beim Ausgleich von Buchungen erstellt werden.
+            </p>
+        </details>
+        <div class="sx-tabs">
+            <label class="sx-tab sx-selected">
+                <input type="radio" name="type" value="1" checked>
+                Belege
+            </label>
+            <label class="sx-tab">
+                <input type="radio" name="type" value="2">
+                Rechnungen
+            </label>
+        </div>
+        <table class="sx-list">
+            <colgroup>
+                <col class="date"/>
+                <col/>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Beschreibung</th>
+                    <th class="amount">Betrag</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4">
+                        <button type="button" disabled>
+                            <span class="sx-button-icon">⊆</span> weitere Daten laden
+                        </button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="sx-actions">
+            <button type="button" data-add><span class="sx-button-icon">＋</span> erstellen</button>
+            <div class="sx-fill">
+                <div class="sx-control">
+                    <input
+                        type="search"
+                        placeholder="Suche in Beschreibung und Nummern"
+                        name="search"
+                        aria-label="Suche in Beschreibung und Nummern"
+                    />
+                    <button type="submit"><span class="sx-button-icon">🔎</span> suchen</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'}, date = {year: '2-digit', month: '2-digit', day: '2-digit'};
+
+    function load() {
+        const form = helper.element('#invoices');
+        const type = parseInt(form.type.value);
+        state.dispatch('invoices', {
+            type: type,
+            search: form.search.value,
+        });
+        state.dispatch('invoice-type', type);
+    }
+
+    page.register('invoices', ({render, show, action, listen}) => {
+        let data = state.get('invoices') || [];
+
+        render(() => {
+            helper.list('#invoices tbody', data, (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<td class="date">${new Date(item.date).toLocaleDateString('de', date)}</td>
+<td>${item.description}</td>
+<td class="amount ${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
+<td><button type="button" value="${item.id}" data-details><span class="sx-button-icon">▽</span> mehr</button></td>
+`;
+                if (!item.assigned || (!item.document && !item.no_document)) {
+                    tr.classList.add('sx-highlight');
+                }
+                return tr;
+            });
+        });
+
+        show(load);
+
+        action('#invoices [name=type]', 'input', (event) => {
+            helper.elements('#invoices .sx-tab').forEach((element) => element.classList.remove('sx-selected'));
+            if (event.target.checked) {
+                event.target.parentNode.classList.add('sx-selected');
+            }
+            load();
+        });
+        action('#invoices', 'submit', (event) => {
+            event.preventDefault();
+            load();
+        });
+        action('#invoices [data-add]', 'click', () => {
+            state.dispatch('invoice-edit', false);
+            state.dispatch('invoice-contact', null);
+            page.show('invoices-edit');
+        });
+        action('#invoices [data-details]', 'click', (event, target) => {
+            state.dispatch('invoice', target.value);
+            page.show('invoices-details');
+        });
+
+        listen('invoices', (invoices) => data = invoices);
+    });
+</script>
+
+<style>
+    #invoices tbody {
+        font-family: monospace;
+    }
+</style>

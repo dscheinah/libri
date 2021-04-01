@@ -1,0 +1,78 @@
+<template>
+    <form id="contacts">
+        <h1>Kontakte</h1>
+        <details>
+            <summary>Hier findest du die Übersicht aller Debitoren und Kreditoren.</summary>
+            <p>
+                Zunächst werden hier nur häufig verwendete Kontakte angezeigt. Verwende die Suche, um weitere zu finden.
+                Kontakte werden für Belege und Rechnungen benötigt und können auch dort bei der Eingabe erstellt werden.
+            </p>
+        </details>
+        <table class="sx-list">
+            <colgroup>
+                <col/>
+                <col/>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>E-Mail</th>
+                    <th>Telefon</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="sx-actions">
+            <button type="button" data-add>
+                <span class="sx-button-icon">＋</span> hinzufügen
+            </button>
+            <div class="sx-fill">
+                <div class="sx-control">
+                    <input type="search" placeholder="Suche in Name" name="search" aria-label="Suche in Name"/>
+                    <button type="submit"><span class="sx-button-icon">🔎</span> suchen</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../js/app.js';
+
+    page.register('contacts', ({render, show, action, listen}) => {
+        let data = state.get('contacts') || [];
+
+        render(() => {
+            helper.list('#contacts tbody', data, (item) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+<td>${item.name}</td>
+<td><a href="mailto:${item.mail}">${item.mail}</a></td>
+<td><a href="tel:${item.phone.replace(/[^+\d]/g, '')}">${item.phone}</a></td>
+<td><button type="button" value="${item.id}" data-contact><span class="sx-button-icon">▽</span> mehr</button></td>
+`;
+                return row;
+            });
+        });
+
+        show(() => state.dispatch('contacts', helper.element('#contacts').search.value));
+
+        action('#contacts', 'submit', (event) => {
+            event.preventDefault();
+            state.dispatch('contacts', event.target.search.value);
+        });
+        action('#contacts [data-add]', 'click', () => {
+            state.dispatch('contact-edit', false);
+            page.show('contacts-edit');
+        });
+        action('#contacts [data-contact]', 'click', (event, target) => {
+            state.dispatch('contact', parseInt(target.value));
+            page.show('contacts-details');
+        });
+
+        listen('contacts', (contacts) => data = contacts);
+    });
+</script>

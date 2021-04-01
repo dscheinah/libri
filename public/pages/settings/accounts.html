@@ -1,0 +1,68 @@
+<template>
+    <h1>Kontenplan</h1>
+    <details>
+        <summary>Hier kannst du die verfügbaren Konten bearbeiten.</summary>
+        <p>
+            Du kannst die Nummer und Bezeichnung der Konten ändern, oder Einträge hinzufügen und löschen. Die Zuordnung
+            eines gelöschten Kontos zur Nummer bleibt an der Buchung erhalten.
+        </p>
+    </details>
+    <form id="settings-accounts">
+        <table class="sx-list">
+            <colgroup>
+                <col/>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Nummer</th>
+                    <th>Bezeichnung</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> speichern</button>
+            <button type="button" data-add><span class="sx-button-icon">＋</span> Konto hinzufügen</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('settings-accounts', ({render, show, action, listen}) => {
+        let data = state.get('accounts') || [];
+
+        render(() => {
+            helper.list('#settings-accounts tbody', data, (item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+<td><input type="text" name="no[]" value="${item.no || ''}" size="5" aria-label="Nummer" required/></td>
+<td><input type="text" name="name[]" value="${item.name || ''}" aria-label="Bezeichnung"/></td>
+<td><button type="button" data-delete="${index}"><span class="sx-button-icon">🗑</span> löschen</button></td>
+`;
+                return row;
+            });
+        });
+
+        show(() => state.dispatch('accounts', null));
+
+        action('#settings-accounts [data-delete]', 'click', (event, target) => {
+            data.splice(parseInt(target.dataset.delete), 1);
+            state.set('accounts', data);
+        })
+        action('#settings-accounts [data-add]', 'click', () => {
+            data.push({});
+            state.set('accounts', data);
+        });
+        action('#settings-accounts', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('accounts', (accounts) => data = accounts);
+    });
+</script>

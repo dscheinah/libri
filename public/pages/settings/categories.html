@@ -1,0 +1,65 @@
+<template>
+    <h1>Kategorien</h1>
+    <details>
+        <summary>Hier kannst du die verfügbaren Kategorien bearbeiten.</summary>
+        <p>
+            Du kannst die Bezeichnung der Kategorien ändern, oder Einträge hinzufügen und löschen. Die Zuordnung einer
+            gelöschten Kategorie zur Buchung wird ebenso entfernt.
+        </p>
+    </details>
+    <form id="settings-categories">
+        <table class="sx-list">
+            <colgroup>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th>Beschreibung</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> speichern</button>
+            <button type="button" data-add><span class="sx-button-icon">＋</span> Kategorie hinzufügen</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('settings-categories', ({render, show, action, listen}) => {
+        let data = state.get('categories') || [];
+
+        render(() => {
+            helper.list('#settings-categories tbody', data, (item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<td><input type="text" name="name[]" value="${item.name || ''}" aria-label="Beschreibung" required/></td>
+<td><button type="button" data-delete="${index}"><span class="sx-button-icon">🗑</span> löschen</button></td>
+`;
+                return tr;
+            });
+        });
+
+        show(() => state.dispatch('categories', null));
+
+        action('#settings-categories [data-delete]', 'click', (event, target) => {
+            data.splice(parseInt(target.dataset.delete), 1);
+            state.set('categories', data);
+        })
+        action('#settings-categories [data-add]', 'click', () => {
+            data.push({});
+            state.set('categories', data);
+        });
+        action('#settings-categories', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('categories', (categories) => data = categories);
+    });
+</script>

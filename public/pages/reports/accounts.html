@@ -1,0 +1,50 @@
+<template>
+    <h1>Gesamtabrechnung</h1>
+    <details>
+        <summary>Hier kannst du den Bericht über alle Buchungen erstellen.</summary>
+        <p>
+            Wähle zunächst den relevanten Zeitraum und die einzubeziehenden Konten. Es werden nur Buchungen
+            berücksichtigt, die mit einem Beleg oder einer Rechnung ausgeglichen sind und nicht storniert wurden.
+        </p>
+    </details>
+    <form id="reports-accounts">
+        <div class="sx-multi">
+            <div class="sx-input">
+                <input type="date" id="reports-accounts-start" name="start" required/>
+                <label for="reports-accounts-start">Startdatum</label>
+            </div>
+            <div class="sx-input">
+                <input type="date" id="reports-accounts-end" name="start" required/>
+                <label for="reports-accounts-end">Enddatum</label>
+            </div>
+        </div>
+        <select id="reports-accounts-accounts" name="accounts" multiple required></select>
+        <label for="reports-accounts-accounts">Konten</label>
+        <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('reports-accounts', ({render, show, action, listen}) => {
+        let accounts = state.get('accounts') || [];
+
+        render(() => {
+           helper.list('#reports-accounts-accounts', accounts, (account) => {
+              const option = document.createElement('option');
+              option.value = account.no;
+              option.innerHTML = [account.no, account.name].filter((v) => v).join(' - ');
+              return option;
+           });
+        });
+
+        show(() => state.dispatch('accounts', null));
+
+        action('#reports-accounts', 'submit', (event) => {
+           event.preventDefault();
+        });
+
+        listen('accounts', (data) => accounts = data);
+    });
+</script>

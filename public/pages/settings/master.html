@@ -1,0 +1,64 @@
+<template>
+    <div id="settings-master">
+        <h1>Stammdaten</h1>
+        <details>
+            <summary>Hier kannst du alle für Rechnungen und Berichte notwendigen Daten pflegen.</summary>
+            <p>
+                Ändere hier die auf der Rechnung anzuzeigende Adresse und Kontoverbindung. Die Nummernserie definiert,
+                wie aus der internen, fortlaufenden Nummer die Referenz generiert werden soll. Schließlich kann ein
+                neues Logo hochgeladen werden, welches auf den Rechnungen und Berichten erscheint. Die Nummernserie
+                unterstützt Platzhalter. Der Platzhalter <code>#checksum#</code> folgt der Vorschrift
+                <code>Nummer + Checksum % 10 = 0</code> und wird verwendet, um besser mit Tippfehlern in Buchungen
+                umgehen zu können. Der spezielle Platzhalter <code>##</code> ermöglicht das einfügen des Zeichens #.
+            </p>
+        </details>
+        <form>
+            <textarea id="settings-master-address" name="address" rows="4"></textarea>
+            <label for="settings-master-address">
+                Firmenadresse
+            </label>
+            <textarea id="settings-master-account" name="account"></textarea>
+            <label for="settings-master-account">
+                Kontoverbindung
+            </label>
+            <input type="text" id="settings-master-number" name="number"/>
+            <label for="settings-master-number">
+                Nummernserie <small>(Platzhalter: #nummer#, #jahr#, #monat#, #tag#, #checksum#, ##)</small>
+            </label>
+            <input type="file" id="settings-master-logo" name="logo" accept="image/jpeg"/>
+            <label for="settings-master-logo">Logo <small>(Bild im JPEG Format)</small></label>
+            <div class="sx-actions">
+                <button type="submit"><span class="sx-button-icon">🖫</span> speichern</button>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    page.register('settings-master', ({render, show, action, listen}) => {
+        let data = state.get('master') || {};
+
+        render(() => {
+            helper.set('#settings-master-address', 'innerHTML', data.address || '');
+            helper.set('#settings-master-account', 'innerHTML', data.account || '');
+            helper.set('#settings-master-number', 'value', data.number || '');
+        });
+
+        show(() => state.dispatch('master', null));
+
+        action('#settings-master form', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('master', (master) => data = master);
+    });
+</script>
+
+<style>
+    #settings-master code {
+        margin: 0 .5em;
+    }
+</style>

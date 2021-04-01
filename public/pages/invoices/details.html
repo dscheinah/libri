@@ -1,0 +1,197 @@
+<template>
+    <div id="invoices-details">
+        <h1></h1>
+        <details>
+            <summary>Hier findest du alle Details und Aktionen zu einem Beleg oder einer Rechnung.</summary>
+            <p>
+                Du kannst offene Belege mit Buchungen ausgleichen. Ist der Ausgleich erfolgt, findest du an dieser
+                Stelle eine Übersicht, mit welchen Buchungen ausgeglichen wurde. Alternativ kann der Beleg bearbeitet
+                oder gelöscht werden. Beim Bearbeiten gibt es auch die Möglichkeit ein Dokument für den Beleg zu
+                hinterlegen. Rechnungen müssen finalisiert werden, um das zu versendende Dokument zu erstellen. Sie
+                können dann nicht mehr bearbeitet werden.
+            </p>
+        </details>
+        <table>
+            <tr>
+                <th>Ausgleich</th>
+                <td>
+                    <span id="invoices-details-assignable" class="sx-highlight">offen</span>
+                    <ul id="invoices-details-assigned"></ul>
+                </td>
+                <td class="align">
+                    <button id="invoices-details-assign" value="invoices-assign" data-navigation>
+                        <span class="sx-button-icon">➾</span> ausgleichen
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <th>Nummer</th>
+                <td id="invoices-details-id"></td>
+            </tr>
+            <tr>
+                <th>Datum</th>
+                <td id="invoices-details-date"></td>
+            </tr>
+            <tr>
+                <th>Betrag</th>
+                <td id="invoices-details-amount"></td>
+            </tr>
+            <tr>
+                <th>Beschreibung</th>
+                <td id="invoices-details-description"></td>
+            </tr>
+            <tr>
+                <th>Referenz</th>
+                <td id="invoices-details-reference"></td>
+            </tr>
+            <tr>
+                <th>Dokument</th>
+                <td>
+                    <span id="invoices-details-no-document"></span>
+                    <a id="invoices-details-document"></a>
+                </td>
+            </tr>
+            <tr id="invoices-details-contact">
+                <th>Kontakt</th>
+                <td id="invoices-details-contact-address"></td>
+                <td class="align">
+                    <button id="invoices-details-contact-id" data-contact>
+                        <span class="sx-button-icon">▽</span> anzeigen
+                    </button>
+                </td>
+            </tr>
+        </table>
+        <div class="sx-actions">
+            <button data-edit><span class="sx-button-icon">✎</span> bearbeiten</button>
+            <button id="invoices-details-finish"><span class="sx-button-icon">⎆</span> finalisieren</button>
+            <button id="invoices-details-delete"><span class="sx-button-icon">🗑</span> löschen</button>
+        </div>
+    </div>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'}, date = {year: 'numeric', month: '2-digit', day: '2-digit'};
+
+    page.register('invoices-details', ({render, action, listen}) => {
+        let data = state.get('invoice') || {};
+
+        render(() => {
+            switch (data.type) {
+                case 1:
+                    if (data.no_document) {
+                        helper.set(
+                            '#invoices-details-no-document',
+                            'innerHTML',
+                            'nicht digitalisiert oder ein Eigenbeleg'
+                        );
+                        helper.set('#invoices-details-no-document', 'className', null);
+                    } else {
+                        helper.set(
+                            '#invoices-details-no-document',
+                            'innerHTML',
+                            'nicht vorhanden'
+                        );
+                        helper.set('#invoices-details-no-document', 'className', 'sx-highlight');
+                    }
+                    helper.set('#invoices-details h1', 'innerHTML', 'Beleg');
+                    helper.set('#invoices-details-delete', 'disabled', data.assigned);
+                    helper.style('#invoices-details-finish', 'display', 'none');
+                    break;
+                case 2:
+                    helper.set(
+                        '#invoices-details-no-document',
+                        'innerHTML',
+                        'noch nicht finalisiert'
+                    );
+                    helper.set('#invoices-details-no-document', 'className', 'sx-highlight');
+                    helper.set('#invoices-details h1', 'innerHTML', 'Rechnung');
+                    helper.set('#invoices-details-finish', 'disabled', data.finished);
+                    helper.set('#invoices-details-delete', 'disabled', data.finished);
+                    helper.style('#invoices-details-finish', 'display', '');
+                    break;
+            }
+            helper.list('#invoices-details-assigned', data.ledgers, (ledger) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<button value="${ledger.id}" data-ledger>${ledger.description}</button>`;
+                return li;
+            });
+            helper.style('#invoices-details-assigned', 'display', data.ledgers.length ? '' : 'none');
+            helper.style('#invoices-details-assignable', 'display', data.assigned ? 'none' : '');
+            helper.style('#invoices-details-assign', 'display', data.assigned ? 'none' : '');
+            helper.set('#invoices-details-id', 'innerHTML', data.id || '');
+            helper.set('#invoices-details-date', 'innerHTML', new Date(data.date).toLocaleDateString('de', date));
+            helper.set('#invoices-details-description', 'innerHTML', data.description || '');
+            helper.set('#invoices-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
+            helper.set('#invoices-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
+            helper.set('#invoices-details-reference', 'innerHTML', data.reference || '');
+            if (data.document) {
+                helper.set('#invoices-details-document', 'href', data.document.link);
+                helper.set('#invoices-details-document', 'innerHTML', data.document.name);
+                helper.style('#invoices-details-document', 'display', '');
+                helper.style('#invoices-details-no-document', 'display', 'none');
+            } else {
+                helper.style('#invoices-details-document', 'display', 'none');
+                helper.style('#invoices-details-no-document', 'display', '');
+            }
+            if (data.contact) {
+                helper.set(
+                    '#invoices-details-contact-address',
+                    'innerHTML',
+                    data.contact.address.replaceAll("\n", '<br/>')
+                );
+                if (data.contact.id) {
+                    helper.set('#invoices-details-contact-id', 'value', data.contact.id);
+                    helper.style('#invoices-details-contact-id', 'display', '');
+                } else {
+                    helper.style('#invoices-details-contact-id', 'display', 'none');
+                }
+                helper.style('#invoices-details-contact', 'display', '');
+            } else {
+                helper.style('#invoices-details-contact', 'display', 'none');
+            }
+        });
+
+        action('#invoices-details [data-ledger]', 'click', (event, target) => {
+            state.dispatch('ledger', parseInt(target.value));
+            page.show('ledgers-details');
+        });
+        action('#invoices-details [data-contact]', 'click', (event, target) => {
+            state.dispatch('contact', parseInt(target.value));
+            page.show('contacts-details');
+        });
+        action('#invoices-details [data-edit]', 'click', () => {
+            state.dispatch('invoice-edit', true);
+            page.show('invoices-edit');
+        });
+        action('#invoices-details-finish', 'click', () => {
+            confirm('Soll die Rechnung finalisiert werden? Das kann nicht rückgängig gemacht werden.');
+        });
+        action('#invoices-details-delete', 'click', () => {
+            confirm('Soll der Beleg gelöscht werden? Das kann nicht rückgängig gemacht werden.');
+        });
+
+        listen('invoice', (invoice) => data = invoice || {});
+    });
+</script>
+
+<style>
+    #invoices-details-assigned {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    #invoices-details-assigned button {
+        font-size: inherit;
+        border-radius: 0;
+        width: auto;
+        height: auto;
+        white-space: normal;
+    }
+
+    #invoices-details-contact-address {
+        padding-bottom: .5em;
+    }
+</style>

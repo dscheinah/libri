@@ -1,0 +1,10 @@
+@media only screen and (max-width: 900px) {
+    .sx-navigation {
+        font-size: 0;
+    }
+
+    .sx-navigation .sx-button-icon {
+        font-size: 1.2rem;
+        margin-left: 1.2em;
+    }
+}

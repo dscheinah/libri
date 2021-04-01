@@ -1,0 +1,88 @@
+<template>
+    <div id="contacts-details">
+        <h1>Kontakt</h1>
+        <details>
+            <summary>Hier findest du alle Details und Aktionen zu einem Kontakt.</summary>
+            <p>
+                Neben den vollständigen Kontaktdaten befindet sich hier die Summe der Beträge aller Belege des Kontakts.
+                Wird der Kontakt bearbeitet oder gelöscht, beleibt die Adresse an bereits ausgeglichenen Belegen und
+                finalisierten Rechnungen unverändert.
+            </p>
+        </details>
+        <table>
+            <tr>
+                <th>Name</th>
+                <td id="contacts-details-name"></td>
+            </tr>
+            <tr>
+                <th>E-Mail</th>
+                <td id="contacts-details-mail"></td>
+            </tr>
+            <tr>
+                <th>Telefon</th>
+                <td id="contacts-details-phone"></td>
+            </tr>
+            <tr>
+                <th>Adresse</th>
+                <td id="contacts-details-address"></td>
+            </tr>
+            <tr>
+                <th>Einnahmen</th>
+                <td id="contacts-details-income"></td>
+                <td rowspan="2" class="align">
+                    <button data-invoice>
+                        <span class="sx-button-icon">📝</span> Rechnung schreiben
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <th>Ausgaben</th>
+                <td id="contacts-details-expense"></td>
+            </tr>
+        </table>
+        <div class="sx-actions">
+            <button data-edit><span class="sx-button-icon">✎</span> bearbeiten</button>
+            <button data-delete><span class="sx-button-icon">🗑</span> löschen</button>
+        </div>
+    </div>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'};
+
+    page.register('contacts-details', ({render, action, listen}) => {
+        let data = state.get('contact') || {};
+
+        render(() => {
+            const mail = data.mail || '', phone = data.phone || '';
+            helper.set('#contacts-details-name', 'innerHTML', data.name || '');
+            helper.set('#contacts-details-mail', 'innerHTML', `<a href="mailto:${mail}">${mail}</a>`);
+            helper.set('#contacts-details-phone', 'innerHTML', `<a href="tel:${phone.replace(/[^+\d]/g, '')}">${phone}</a>`);
+            helper.set('#contacts-details-address', 'innerHTML', (data.address || '').replaceAll("\n", '<br/>'));
+            helper.set('#contacts-details-income', 'innerHTML', (data.income || 0).toLocaleString('de', currency));
+            helper.set('#contacts-details-income', 'className', data.income ? 'income' : null);
+            helper.set('#contacts-details-expense', 'innerHTML', (data.expense || 0).toLocaleString('de', currency));
+            helper.set('#contacts-details-expense', 'className', data.expense ? 'expense' : null);
+        });
+
+        action('#contacts-details [data-invoice]', 'click', () => {
+            state.dispatch('invoice-edit', false);
+            state.dispatch('invoice-type', 2);
+            state.dispatch('invoice-contact', {id: data.id, address: data.address || data.name});
+            page.show('invoices-edit');
+        });
+        action('#contacts-details [data-edit]', 'click', () => {
+            state.dispatch('contact-edit', true);
+            page.show('contacts-edit');
+        });
+        action('#contacts-details [data-delete]', 'click', () => {
+            if (confirm('Soll der Kontakt gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
+                history.back();
+            }
+        });
+
+        listen('contact', (contact) => data = contact || {});
+    });
+</script>

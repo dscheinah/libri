@@ -1,0 +1,96 @@
+<template>
+    <h1>Ausgleich</h1>
+    <details>
+        <summary>Hier kannst du den Beleg zu Buchungen zuordnen, um diesen auszugleichen.</summary>
+        <p>
+            Wähle aus der Liste offener Buchungen die zu verwendenden Einträge aus. Gibt es bereits einen vom Betrag
+            passenden Eintrag, ist dieser automatisch ausgewählt. Der Ausgleich kann nicht rückgängig gemacht werden.
+        </p>
+    </details>
+    <table>
+        <tr>
+            <th>Beschreibung</th>
+            <td id="invoices-assign-description"></td>
+        </tr>
+        <tr>
+            <th>Betrag</th>
+            <td id="invoices-assign-amount"></td>
+        </tr>
+    </table>
+    <form id="invoices-assign">
+        <table class="sx-list">
+            <colgroup>
+                <col/>
+                <col/>
+                <col class="sx-action"/>
+            </colgroup>
+            <thead>
+                <tr>
+                    <th class="amount">Betrag</th>
+                    <th>Beschreibung</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="sx-checkbox">
+            <input type="checkbox" id="invoices-assign-credit" name="credit" value="1">
+            <label for="invoices-assign-credit">Restbetrag gutschreiben</label>
+        </div>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">🖫</span> Ausgleich anwenden</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    const currency = {currency: 'EUR', style: 'currency'};
+
+    page.register('invoices-assign', ({render, show, action, listen}) => {
+        let invoice = state.get('invoice'), ledgers = state.get('ledgers-assignable') || [];
+
+        render(() => {
+            if (!invoice) {
+                return;
+            }
+            helper.set('#invoices-assign-description', 'innerHTML', invoice.description);
+            helper.set('#invoices-assign-amount', 'innerHTML', (invoice.amount).toLocaleString('de', currency));
+            helper.set('#invoices-assign-amount', 'className', invoice.amount > 0 ? 'income' : 'expense');
+            let preselectLedgers = ledgers.filter((ledger) => ledger.amount * invoice.amount > 0);
+            helper.list('#invoices-assign tbody', preselectLedgers, (ledger) => {
+                const tr = document.createElement('tr'), checkbox = document.createElement('input');
+                checkbox.type ='checkbox';
+                checkbox.name = 'ledgers[]';
+                checkbox.value = ledger.id;
+                checkbox.setAttribute('aria-label', 'auswählen');
+                if (invoice.amount === ledger.amount) {
+                    checkbox.setAttribute('checked', '');
+                }
+                tr.innerHTML = `
+<td class="amount ${ledger.amount > 0 ? 'income' : 'expense'}">${ledger.amount.toLocaleString('de', currency)}</td>
+<td>${ledger.description}</td>
+<td><span class="sx-checkbox">${checkbox.outerHTML}</span></td>
+`;
+                return tr;
+            });
+        });
+
+        show(() => state.dispatch('ledgers-assignable', null));
+
+        action('#invoices-assign', 'submit', (event) => {
+            event.preventDefault();
+            history.back();
+        });
+
+        listen('invoice', (data) => invoice = data);
+        listen('ledgers-assignable', (data) => ledgers = data);
+    });
+</script>
+
+<style>
+    #invoices-assign table .sx-checkbox {
+        margin-bottom: 0;
+    }
+</style>

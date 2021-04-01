@@ -1,0 +1,33 @@
+<template>
+    <h1>Stornierte Buchungen</h1>
+    <details>
+        <summary>Hier kannst du den Bericht über stornierte Buchungen erstellen.</summary>
+        <p>
+            Wähle zunächst den relevanten Zeitraum, für den alle stornierten Buchungen ausgegeben werden sollen. Das
+            kann verwendet werden, um fehlende Nummern in anderen Berichten abzugleichen.
+        </p>
+    </details>
+    <form id="reports-cancellations">
+        <div class="sx-multi">
+            <div class="sx-input">
+                <input type="date" id="reports-cancellations-start" name="start" required/>
+                <label for="reports-cancellations-start">Startdatum</label>
+            </div>
+            <div class="sx-input">
+                <input type="date" id="reports-cancellations-end" name="start" required/>
+                <label for="reports-cancellations-end">Enddatum</label>
+            </div>
+        </div>
+        <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
+    </form>
+</template>
+
+<script type="module">
+    import {page} from '../../js/app.js';
+
+    page.register('reports-cancellations', ({action}) => {
+        action('#reports-cancellations', 'submit', (event) => {
+            event.preventDefault();
+        });
+    });
+</script>
