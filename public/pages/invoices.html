@@ -7,7 +7,7 @@
                 Der Reiter Belege dient der Verwaltung aller vorliegenden Ein- und Ausgangsbelege. Unter dem Reiter
                 Rechnungen werden spezielle Belege verwaltet, die zur Zahlungsaufforderung oder als Gutschrift an
                 Kontakte gesendet werden sollen. Hervorgehobene Zeilen müssen noch bearbeitet werden. Belege können auch
-                beim Ausgleich von Buchungen erstellt werden.
+                beim Zuordnen von Buchungen erstellt werden.
             </p>
         </details>
         <div class="sx-tabs">
@@ -111,6 +111,7 @@
             load();
         });
         action('#invoices [data-add]', 'click', () => {
+            state.dispatch('invoice-preset', {});
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-contact', null);
             page.show('invoices-edit');

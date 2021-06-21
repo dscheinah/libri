@@ -1,12 +1,12 @@
 <template>
     <form id="ledgers">
-        <h1>Konten</h1>
+        <h1>Grundbuch</h1>
         <details>
-            <summary>Hier findest du die Übersicht aller Konten und deren Buchungen.</summary>
+            <summary>Hier findest du die Übersicht aller gebuchten Buchungssätze.</summary>
             <p>
-                Du kannst in der Übersicht suchen und diese auf ein Konto einschränken. Ebenso kannst du mit der
+                Du kannst in der Übersicht suchen und diese auf ein Bestandskonto einschränken. Ebenso kannst du mit der
                 Buchungsmaske neue Buchungen erfassen oder importieren. Die Liste enthält auch stornierte Buchungen.
-                Hervorgehobene Zeilen müssen noch ausgeglichen werden.
+                Hervorgehobene Zeilen sind noch keinem Beleg oder keiner Rechnung zugeordnet.
             </p>
         </details>
         <div id="ledgers-accounts" class="sx-tabs"></div>
@@ -14,7 +14,7 @@
             <colgroup>
                 <col>
                 <col class="account">
-                <col class="category">
+                <col class="offset">
                 <col>
                 <col>
                 <col class="sx-action">
@@ -23,7 +23,7 @@
                 <tr>
                     <th>Datum</th>
                     <th class="account">Konto</th>
-                    <th class="category">Kategorie</th>
+                    <th class="offset">Gegenkonto</th>
                     <th>Beschreibung</th>
                     <th class="amount">Betrag</th>
                     <th></th>
@@ -73,7 +73,7 @@
     }
 
     page.register('ledgers', ({render, show, action, listen}) => {
-        let accounts = state.get('accounts') || [];
+        let accounts = state.get('accounts-real') || [];
         let data = state.get('ledgers') || [];
 
         render(() => {
@@ -89,7 +89,7 @@
                 tr.innerHTML = `
 <td class="date">${new Date(item.date).toLocaleDateString('de', date)}</td>
 <td class="account">${item.account.description}</td>
-<td class="category">${item.category || ''}</td>
+<td class="offset">${item.offset.description}</td>
 <td>${item.description}</td>
 <td class="amount ${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
 <td><button type="button" value="${item.id}" data-details><span class="sx-button-icon">▽</span> mehr</button></td>
@@ -104,7 +104,7 @@
         });
 
         show(() => {
-            state.dispatch('accounts', null);
+            state.dispatch('accounts-real', null);
             load();
         });
 
@@ -127,7 +127,7 @@
             page.show('ledgers-details');
         });
 
-        listen('accounts', (data) => accounts = data);
+        listen('accounts-real', (data) => accounts = data);
         listen('ledgers', (ledgers) => data = ledgers);
     });
 </script>
@@ -152,7 +152,7 @@
     }
 
     @media only screen and (max-width: 640px) {
-        #ledgers .category {
+        #ledgers .offset {
             display: none;
         }
     }

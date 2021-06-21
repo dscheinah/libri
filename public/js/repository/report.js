@@ -3,29 +3,31 @@ import * as invoice from './invoice.js';
 
 export async function dashboard() {
     const ledgers = await ledger.list(), invoices = await invoice.list();
+    const reducer = (c, l) => c + l.amount;
     return {
-        accounts: ledgers.reduce((c, l) => c + l.amount, 0),
+        accounts: ledgers.reduce(reducer, 0)
+            - ledgers.filter((l) => ['1600', '1800'].includes(l.offset.no)).reduce(reducer, 0),
         categories: [
             {
                 name: "Geschäftsbetrieb",
-                amount: ledgers.reduce((c, l) => l.category === 'Geschäftsbetrieb' ? c + l.amount : c, 0),
+                amount: ledgers.reduce((c, l) => l.offset.no === '8000' ? c + l.amount : c, 0),
             },
             {
                 name: "Ideeller Bereich",
-                amount: ledgers.reduce((c, l) => l.category === 'Ideeller Bereich' ? c + l.amount : c, 0),
+                amount: ledgers.reduce((c, l) => l.offset.no === '2000' ? c + l.amount : c, 0),
             },
             {
                 name: "Zweckbetrieb",
-                amount: ledgers.reduce((c, l) => l.category === 'Zweckbetrieb' ? c + l.amount : c, 0),
+                amount: ledgers.reduce((c, l) => ['6000', '6010'].includes(l.offset.no) ? c + l.amount : c, 0),
             },
             {
                 name: "ohne Zuordnung",
-                amount: ledgers.reduce((c, l) => !l.category ? c + l.amount : c, 0),
+                amount: ledgers.reduce((c, l) => l.offset.no === '9000' ? c + l.amount : c, 0),
             },
         ],
         problems: [
             {
-                name: "Offene Buchungen",
+                name: "Buchungen ohne Beleg",
                 count: ledgers.filter((l) => !l.assigned && !l.canceled).length,
             },
             {

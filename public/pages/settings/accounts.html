@@ -4,7 +4,8 @@
         <summary>Hier kannst du die verfügbaren Konten bearbeiten.</summary>
         <p>
             Du kannst die Nummer und Bezeichnung der Konten ändern, oder Einträge hinzufügen und löschen. Die Zuordnung
-            eines gelöschten Kontos zur Nummer bleibt an der Buchung erhalten.
+            eines gelöschten Kontos zur Nummer bleibt an der Buchung erhalten. Die Kennzeichen Kategorie und Bestand
+            werden für die Anzeige im Grundbuch und den Berichten verwendet.
         </p>
     </details>
     <form id="settings-accounts">
@@ -12,12 +13,16 @@
             <colgroup>
                 <col/>
                 <col/>
+                <col/>
+                <col class="settings-accounts-real"/>
                 <col class="sx-action"/>
             </colgroup>
             <thead>
                 <tr>
                     <th>Nummer</th>
                     <th>Bezeichnung</th>
+                    <th>Kategorie</th>
+                    <th>Bestand</th>
                     <th></th>
                 </tr>
             </thead>
@@ -28,27 +33,50 @@
             <button type="button" data-add><span class="sx-button-icon">＋</span> Konto hinzufügen</button>
         </div>
     </form>
+    <table id="settings-accounts-template">
+        <tr>
+            <td><input type="text" name="no[]" size="5" aria-label="Nummer" required/></td>
+            <td><input type="text" name="name[]" aria-label="Bezeichnung"/></td>
+            <td><select name="category[]" aria-label="Kategorie"></select></td>
+            <td><span class="sx-checkbox"><input type="checkbox" name="real[]" aria-label="Bestand"/></span></td>
+            <td>
+                <button type="button" data-delete><span class="sx-button-icon">🗑</span> löschen</button>
+            </td>
+        </tr>
+    </table>
 </template>
 
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    const keys = ['no', 'name', 'category'];
+
     page.register('settings-accounts', ({render, show, action, listen}) => {
-        let data = state.get('accounts') || [];
+        let data = state.get('accounts') || [], categories = [];
 
         render(() => {
+            helper.list('#settings-accounts-template [name^=category]', categories, (category) => {
+                const option = document.createElement('option');
+                option.value = category.id || '';
+                option.innerHTML = category.name || '';
+                return option;
+            });
+            const template = helper.element('#settings-accounts-template tr');
             helper.list('#settings-accounts tbody', data, (item, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-<td><input type="text" name="no[]" value="${item.no || ''}" size="5" aria-label="Nummer" required/></td>
-<td><input type="text" name="name[]" value="${item.name || ''}" aria-label="Bezeichnung"/></td>
-<td><button type="button" data-delete="${index}"><span class="sx-button-icon">🗑</span> löschen</button></td>
-`;
-                return row;
+                const clone = template.cloneNode(true);
+                keys.forEach((key) => {
+                    clone.querySelector(`[name^=${key}]`).value = item[key] || '';
+                });
+                clone.querySelector('[name^=real]').checked = item.real;
+                clone.querySelector('[data-delete]').dataset.delete = index;
+                return clone;
             });
         });
 
-        show(() => state.dispatch('accounts', null));
+        show(() => {
+            state.dispatch('accounts', null);
+            state.dispatch('categories', null);
+        });
 
         action('#settings-accounts [data-delete]', 'click', (event, target) => {
             data.splice(parseInt(target.dataset.delete), 1);
@@ -64,5 +92,24 @@
         });
 
         listen('accounts', (accounts) => data = accounts);
+        listen('categories', (data) => {
+            data.unshift({});
+            categories = data;
+        });
     });
 </script>
+
+<style>
+    #settings-accounts .sx-checkbox {
+        justify-content: center;
+        margin-bottom: 0;
+    }
+
+    #settings-accounts-template {
+        display: none;
+    }
+
+    .settings-accounts-real {
+        width: 70px;
+    }
+</style>

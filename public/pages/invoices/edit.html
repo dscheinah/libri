@@ -64,6 +64,7 @@
 
     page.register('invoices-edit', ({render, action, listen}) => {
         let data = state.get('invoice') || {};
+        let preset = state.get('invoice-preset') || {};
         let edit = state.get('invoice-edit');
         let type = state.get('invoice-type');
         let contact = state.get('invoice-contact');
@@ -98,7 +99,7 @@
             }
             helper.set('#invoices-edit-date', 'value', edit ? data.date : '');
             helper.set('#invoices-edit-description', 'value', edit ? data.description : '');
-            helper.set('#invoices-edit-amount', 'value', edit ? data.amount : '');
+            helper.set('#invoices-edit-amount', 'value', edit ? data.amount : preset.amount || '');
             helper.set('#invoices-edit-reference', 'value', edit ? data.reference : '');
             helper.set('#invoices-edit-no-document', 'checked', edit && data.no_document);
             let disabled = edit && (data.assigned || data.finished);
@@ -117,6 +118,7 @@
         });
 
         listen('invoice', (invoice) => data = invoice || {});
+        listen('invoice-preset', (invoice) => preset = invoice || {});
         listen('invoice-edit', (trigger) => edit = trigger);
         listen('invoice-type', (value) => type = value);
         listen('invoice-contact', (data) => contact = data);

@@ -24,10 +24,10 @@
                 <tr>
                     <th>Datum</th>
                     <th>Konto</th>
+                    <th>Gegenkonto</th>
                     <th>Betrag</th>
                     <th>Beschreibung</th>
                     <th>Referenz</th>
-                    <th>Kategorie</th>
                     <th></th>
                 </tr>
             </thead>
@@ -44,12 +44,12 @@
             <td>
                 <select name="account[]" aria-label="Konto" required></select>
             </td>
+            <td>
+                <select name="offset[]" aria-label="Gegenkonto" required></select>
+            </td>
             <td><input type="number" name="amount[]" aria-label="Betrag" required/></td>
             <td><input type="text" name="description[]" aria-label="Beschreibung"/></td>
             <td><input type="text" name="reference[]" aria-label="Referenz"/></td>
-            <td>
-                <select name="category[]" aria-label="Kategorie"></select>
-            </td>
             <td>
                 <button type="button" data-delete><span class="sx-button-icon">🗑</span> löschen</button>
             </td>
@@ -60,24 +60,21 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
-    const keys = ['date', 'account', 'amount', 'description', 'reference', 'category'];
+    const keys = ['date', 'account', 'offset', 'amount', 'description', 'reference'];
+
+    const renderAccount = (account) => {
+        const option = document.createElement('option');
+        option.value = account.no || '';
+        option.innerHTML = [account.no, account.name].filter((v) => v).join(' - ');
+        return option;
+    };
 
     page.register('ledgers-enter', ({render, show, action, listen}) => {
-        let accounts = [], categories = [], data = state.get('ledgers-enter') || {length: 1};
+        let accounts = [], real = [], data = state.get('ledgers-enter') || {length: 1};
 
         render(() => {
-            helper.list('#ledgers-enter-template [name^=account]', accounts, (account) => {
-                const option = document.createElement('option');
-                option.value = account.no || '';
-                option.innerHTML = [account.no, account.name].filter((v) => v).join(' - ');
-                return option;
-            });
-            helper.list('#ledgers-enter-template [name^=category]', categories, (category) => {
-                const option = document.createElement('option');
-                option.value = category.id || '';
-                option.innerHTML = category.name || '';
-                return option;
-            });
+            helper.list('#ledgers-enter-template [name^=account]', real, renderAccount);
+            helper.list('#ledgers-enter-template [name^=offset]', accounts, renderAccount);
             const template = helper.element('#ledgers-enter-template tr');
             helper.list('#ledgers-enter-list', new Array(data.length).fill(null), (ignore, index) => {
                 const clone = template.cloneNode(true);
@@ -92,7 +89,7 @@
 
         show(() => {
             state.dispatch('accounts', null);
-            state.dispatch('categories', null);
+            state.dispatch('accounts-real', null);
         });
 
         action('#ledgers-enter', 'input', (event, target) => {
@@ -125,9 +122,9 @@
             data.unshift({});
             accounts = data;
         });
-        listen('categories', (data) => {
+        listen('accounts-real', (data) => {
             data.unshift({});
-            categories = data;
+            real = data;
         });
         listen('ledgers-enter', (enter) => data = enter);
     });

@@ -47,6 +47,7 @@ state.listen('sx-show', () => state.dispatch('loading', false));
 // Add a common loading state handler to all async repository actions.
 [
     'accounts',
+    'accounts-real',
     'categories',
     'contacts',
     'contact',
@@ -70,6 +71,7 @@ state.listen('sx-show', () => state.dispatch('loading', false));
 });
 // Handle async repository calls.
 state.handle('accounts', account.list);
+state.handle('accounts-real', account.real);
 state.handle('categories', category.list);
 state.handle('contacts', contact.list);
 state.handle('contact', contact.get);

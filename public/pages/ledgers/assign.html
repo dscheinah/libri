@@ -1,11 +1,11 @@
 <template>
-    <h1>Ausgleich</h1>
+    <h1>Zuordnung</h1>
     <details>
-        <summary>Hier kannst du die Buchung zu Belegen und Rechnungen zuordnen, um diese auszugleichen.</summary>
+        <summary>Hier kannst du die Buchung zu Belegen und Rechnungen zuordnen.</summary>
         <p>
             Wähle aus der Liste offener Belege und Rechnungen die zu verwendenden Einträge aus. Gibt es bereits einen
-            vom Betrag passenden Eintrag, ist dieser automatisch ausgewählt. Der Ausgleich kann nicht rückgängig gemacht
-            werden. Damit Rechnungen zum Ausgleichen verwendet werden können, müssen diese zunächst finalisiert werden.
+            vom Betrag passenden Eintrag, ist dieser automatisch ausgewählt. Die Zuordnung kann nicht rückgängig gemacht
+            werden. Damit Rechnungen zugeordnet werden können, müssen diese zunächst finalisiert werden.
             Wurde der vorliegende Beleg noch nicht erfasst, kann dieser direkt erstellt werden.
         </p>
     </details>
@@ -36,7 +36,7 @@
             <tbody></tbody>
         </table>
         <div class="sx-actions">
-            <button type="submit"><span class="sx-button-icon">🖫</span> Ausgleich anwenden</button>
+            <button type="submit"><span class="sx-button-icon">🖫</span> Zuordnung anwenden</button>
             <button type="button" data-invoice>
                 <span class="sx-button-icon">＋</span> neuen Beleg erstellen
             </button>
@@ -86,6 +86,7 @@
             history.back();
         });
         action('#ledgers-assign [data-invoice]', 'click', () => {
+            state.dispatch('invoice-preset', ledger ? {amount: ledger.amount} : {})
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-type', 1);
             page.show('invoices-edit');

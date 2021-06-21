@@ -3,22 +3,22 @@
     <details>
         <summary>Hier findest du alle Details und Aktionen zu einer Buchung.</summary>
         <p>
-            Du kannst offene Buchungen mit Belegen oder Rechnungen ausgleichen. Ist der Ausgleich erfolgt, findest du an
-            dieser Stelle eine Übersicht, womit ausgeglichen wurde. Alternativ kann die Buchung storniert
+            Du kannst nicht zugeordnete Buchungen Belegen oder Rechnungen zuordnen. Ist der Ausgleich erfolgt,
+            findest du an dieser Stelle eine Übersicht, was zugeordnet wurde. Alternativ kann die Buchung storniert
             werden, wenn es sich um eine fehlerhafte Buchung handelt. Eine Bearbeitung ist bis auf die Änderung der
             Kategorie ansonsten nicht möglich.
         </p>
     </details>
     <table id="ledgers-details">
         <tr>
-            <th>Ausgleich</th>
+            <th>Zuordnung</th>
             <td>
                 <span id="ledgers-details-assignable" class="sx-highlight">offen</span>
                 <ul id="ledgers-details-assigned"></ul>
             </td>
             <td class="align">
                 <button id="ledgers-details-assign" value="ledgers-assign" data-navigation>
-                    <span class="sx-button-icon">➾</span> ausgleichen
+                    <span class="sx-button-icon">➾</span> zuordnen
                 </button>
             </td>
         </tr>
@@ -35,9 +35,8 @@
             <td id="ledgers-details-account"></td>
         </tr>
         <tr>
-            <th>Kategorie</th>
-            <td id="ledgers-details-category"></td>
-            <td class="align"><button><span class="sx-button-icon">↔</span> ändern</button></td>
+            <th>Gegenkonto</th>
+            <td id="ledgers-details-offset"></td>
         </tr>
         <tr>
             <th>Beschreibung</th>
@@ -76,8 +75,8 @@
             helper.style('#ledgers-details-assign', 'display', data.assigned ? 'none' : '');
             helper.set('#ledgers-details-id', 'innerHTML', data.id || '');
             helper.set('#ledgers-details-date', 'innerHTML', new Date(data.date).toLocaleDateString('de', date));
-            helper.set('#ledgers-details-account', 'innerHTML', data.account.description || '');
-            helper.set('#ledgers-details-category', 'innerHTML', data.category || '');
+            helper.set('#ledgers-details-account', 'innerHTML', data.account.description);
+            helper.set('#ledgers-details-offset', 'innerHTML', data.offset.description);
             helper.set('#ledgers-details-description', 'innerHTML', data.description || '');
             helper.set('#ledgers-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
             helper.set('#ledgers-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
