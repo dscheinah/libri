@@ -51,9 +51,10 @@
             <td id="ledgers-details-reference"></td>
         </tr>
     </table>
-    <div class="sx-actions">
-        <button id="ledgers-details-cancel"><span class="sx-button-icon">🗑</span> stornieren</button>
-    </div>
+    <form id="ledgers-details-cancel" class="sx-actions">
+        <input name="reason" placeholder="Stornierungsgrund" aria-label="Stornierungsgrund" required/>
+        <button><span class="sx-button-icon">🗑</span> stornieren</button>
+    </form>
 </template>
 
 <script type="module">
@@ -87,7 +88,8 @@
             state.dispatch('invoice', target.value);
             page.show('invoices-details');
         });
-        action('#ledgers-details-cancel', 'click', () => {
+        action('#ledgers-details-cancel', 'submit', (event) => {
+            event.preventDefault();
             confirm('Soll die Buchung storniert werden? Das kann nicht rückgängig gemacht werden.');
         });
 
