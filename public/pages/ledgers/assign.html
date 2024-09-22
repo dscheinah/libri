@@ -83,7 +83,9 @@
 
         action('#ledgers-assign', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            const formData = new FormData(event.target);
+            formData.append('id', ledger.id);
+            state.dispatch('ledgers-assign', formData);
         });
         action('#ledgers-assign [data-invoice]', 'click', () => {
             state.dispatch('invoice-preset', ledger ? {amount: ledger.amount} : {})
@@ -94,6 +96,9 @@
 
         listen('ledger', (data) => ledger = data);
         listen('invoices-assignable', (data) => invoices = data);
+        listen('ledgers-assign', () => {
+            history.back();
+        });
     });
 </script>
 

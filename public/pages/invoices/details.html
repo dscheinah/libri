@@ -169,10 +169,21 @@
             confirm('Soll die Rechnung finalisiert werden? Das kann nicht rückgängig gemacht werden.');
         });
         action('#invoices-details-delete', 'click', () => {
-            confirm('Soll der Beleg gelöscht werden? Das kann nicht rückgängig gemacht werden.');
+            if (confirm('Soll der Beleg gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
+                state.dispatch('invoice-delete', data.id);
+            }
         });
 
         listen('invoice', (invoice) => data = invoice || {});
+        listen('invoice-delete', () => {
+            history.back();
+        });
+        listen('invoices-assign', () => {
+            state.dispatch('invoice', data.id);
+        });
+        listen('invoice-save', () => {
+            state.dispatch('invoice', data.id);
+        });
     });
 </script>
 

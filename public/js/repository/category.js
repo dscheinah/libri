@@ -14,3 +14,7 @@ export async function list() {
         },
     ];
 }
+
+export async function save(data) {
+    console.debug('category.save', data);
+}

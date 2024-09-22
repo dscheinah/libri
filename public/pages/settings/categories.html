@@ -57,9 +57,13 @@
         });
         action('#settings-categories', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            state.dispatch('categories-save', new FormData(event.target));
         });
 
         listen('categories', (categories) => data = categories);
+        listen('categories-save', () => {
+            state.dispatch('categories', null);
+            history.back();
+        });
     });
 </script>

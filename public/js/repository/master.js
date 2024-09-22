@@ -5,3 +5,7 @@ export async function get() {
         number: "R#nummer#-#jahr#-#checksum#",
     };
 }
+
+export async function save(data) {
+    console.debug('master.save', data);
+}

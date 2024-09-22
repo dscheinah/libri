@@ -56,3 +56,11 @@ export async function get(id) {
     })
     return contact;
 }
+
+export async function save(data) {
+    console.debug('contact.save', data);
+}
+
+export async function remove(id) {
+    console.debug('contact.remove', id);
+}

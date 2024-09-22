@@ -88,13 +88,17 @@
         });
         action('#settings-accounts', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            state.dispatch('accounts-save', new FormData(event.target));
         });
 
         listen('accounts', (accounts) => data = accounts);
         listen('categories', (data) => {
             data.unshift({});
             categories = data;
+        });
+        listen('accounts-save', () => {
+            state.dispatch('accounts', null);
+            history.back();
         });
     });
 </script>

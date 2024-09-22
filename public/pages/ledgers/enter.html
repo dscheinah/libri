@@ -115,7 +115,7 @@
         });
         action('#ledgers-enter', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            state.dispatch('ledgers-save', new FormData(event.target));
         });
 
         listen('accounts', (data) => {
@@ -127,6 +127,9 @@
             real = data;
         });
         listen('ledgers-enter', (enter) => data = enter);
+        listen('ledgers-save', () => {
+            history.back();
+        });
     });
 </script>
 

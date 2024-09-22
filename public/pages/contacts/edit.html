@@ -41,10 +41,17 @@
 
         action('#contacts-edit', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            const formData = new FormData(event.target);
+            if (edit) {
+                formData.append('id', data.id);
+            }
+            state.dispatch('contact-save', formData);
         });
 
         listen('contact', (contact) => data = contact || {});
         listen('contact-edit', (trigger) => edit = trigger);
+        listen('contact-save', () => {
+            history.back();
+        });
     });
 </script>

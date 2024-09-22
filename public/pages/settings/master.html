@@ -50,10 +50,14 @@
 
         action('#settings-master form', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            state.dispatch('master-save', new FormData(event.target));
         });
 
         listen('master', (master) => data = master);
+        listen('master-save', () => {
+           state.dispatch('master', null);
+           history.back();
+        });
     });
 </script>
 

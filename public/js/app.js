@@ -48,17 +48,28 @@ state.listen('sx-show', () => state.dispatch('loading', false));
 [
     'accounts',
     'accounts-real',
+    'accounts-save',
     'categories',
+    'categories-save',
     'contacts',
     'contact',
+    'contact-save',
+    'contact-delete',
     'dashboard',
     'ledgers',
     'ledgers-assignable',
+    'ledgers-assign',
+    'ledgers-save',
     'ledger',
+    'ledger-cancel',
     'invoices',
     'invoices-assignable',
+    'invoices-assign',
     'invoice',
+    'invoice-save',
+    'invoice-delete',
     'master',
+    'master-save',
 ].forEach((key) => {
     state.handle(key, async (payload, next) => {
         try {
@@ -72,17 +83,28 @@ state.listen('sx-show', () => state.dispatch('loading', false));
 // Handle async repository calls.
 state.handle('accounts', account.list);
 state.handle('accounts-real', account.real);
+state.handle('accounts-save', account.save);
 state.handle('categories', category.list);
+state.handle('categories-save', category.save);
 state.handle('contacts', contact.list);
 state.handle('contact', contact.get);
+state.handle('contact-save', contact.save);
+state.handle('contact-delete', contact.remove);
 state.handle('dashboard', report.dashboard);
 state.handle('ledgers', ({account, search}) => ledger.list(account, search));
 state.handle('ledgers-assignable', ledger.assignable);
+state.handle('ledgers-assign', ledger.assign);
+state.handle('ledgers-save', ledger.save);
 state.handle('ledger', ledger.get);
+state.handle('ledger-cancel', ledger.cancel);
 state.handle('invoices', ({type, search}) => invoice.list(type, search));
 state.handle('invoices-assignable', invoice.assignable);
+state.handle('invoices-assign', invoice.assign);
 state.handle('invoice', invoice.get);
+state.handle('invoice-save', invoice.save);
+state.handle('invoice-delete', invoice.remove);
 state.handle('master', master.get);
+state.handle('master-save', master.save);
 
 // This is a simple example for async global state management.
 state.handle('backend-data', (payload) => data.load(payload));

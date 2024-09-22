@@ -223,3 +223,15 @@ export async function get(id) {
 export async function assignable() {
     return ledgers.filter((ledger) => !ledger.assigned && !ledger.canceled);
 }
+
+export async function save(data) {
+    console.debug('ledger.save', data);
+}
+
+export async function cancel(data) {
+    console.debug('ledger.cancel', data);
+}
+
+export async function assign(data) {
+    console.debug('ledger.assign', data);
+}

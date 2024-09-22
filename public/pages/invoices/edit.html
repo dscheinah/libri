@@ -114,7 +114,11 @@
         });
         action('#invoices-edit', 'submit', (event) => {
             event.preventDefault();
-            history.back();
+            const formData = new FormData(event.target);
+            if (edit) {
+                formData.append('id', data.id);
+            }
+            state.dispatch('invoice-save', formData);
         });
 
         listen('invoice', (invoice) => data = invoice || {});
@@ -122,5 +126,8 @@
         listen('invoice-edit', (trigger) => edit = trigger);
         listen('invoice-type', (value) => type = value);
         listen('invoice-contact', (data) => contact = data);
+        listen('invoice-save', () => {
+            history.back();
+        });
     });
 </script>

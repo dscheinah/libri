@@ -122,6 +122,9 @@
         });
 
         listen('invoices', (invoices) => data = invoices);
+        listen('invoices-assign', load);
+        listen('invoice-save', load);
+        listen('invoice-delete', load);
     });
 </script>
 

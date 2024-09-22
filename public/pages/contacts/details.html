@@ -79,10 +79,16 @@
         });
         action('#contacts-details [data-delete]', 'click', () => {
             if (confirm('Soll der Kontakt gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
-                history.back();
+                state.dispatch('contact-delete', data.id);
             }
         });
 
         listen('contact', (contact) => data = contact || {});
+        listen('contact-save', () => {
+            state.dispatch('contact', data.id);
+        });
+        listen('contact-delete', () => {
+            history.back();
+        });
     });
 </script>

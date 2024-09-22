@@ -90,10 +90,20 @@
         });
         action('#ledgers-details-cancel', 'submit', (event) => {
             event.preventDefault();
-            confirm('Soll die Buchung storniert werden? Das kann nicht rückgängig gemacht werden.');
+            if (confirm('Soll die Buchung storniert werden? Das kann nicht rückgängig gemacht werden.')) {
+                const formData = new FormData(event.target);
+                formData.append('id', data.id);
+                state.dispatch('ledger-cancel', formData);
+            }
         });
 
         listen('ledger', (ledger) => data = ledger || {});
+        listen('ledger-cancel', () => {
+            history.back();
+        });
+        listen('ledgers-assign', () => {
+            state.dispatch('ledger', data.id);
+        });
     });
 </script>
 

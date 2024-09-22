@@ -50,3 +50,7 @@ export async function list() {
 export async function real() {
     return accounts.filter(account => account.real);
 }
+
+export async function save(data) {
+    console.debug('account.save', data);
+}

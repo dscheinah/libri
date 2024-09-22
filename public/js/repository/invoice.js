@@ -209,3 +209,15 @@ export async function assignable() {
         return invoice.type === 1 || invoice.finished;
     });
 }
+
+export async function save(data) {
+    console.debug('invoice.save', data);
+}
+
+export async function remove(id) {
+    console.debug('invoice.remove', id);
+}
+
+export async function assign(data) {
+    console.debug('invoice.assign', data);
+}
