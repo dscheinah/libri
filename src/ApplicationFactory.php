@@ -18,15 +18,17 @@ class ApplicationFactory implements FactoryInterface
     /**
      * Creates the application and adds all middleware in correct order.
      *
-     * @param Injector $injector
-     * @param array    $options
-     * @param string   $class
+     * @param Injector             $injector
+     * @param array<string, mixed> $options
+     * @param string               $class
      *
      * @return Application
      */
     public function create(Injector $injector, array $options, string $class): Application
     {
-        $app = new Application($injector->get(MiddlewareHandlerInterface::class));
+        $handler = $injector->get(MiddlewareHandlerInterface::class);
+        assert($handler instanceof MiddlewareHandlerInterface);
+        $app = new Application($handler);
         // Add the error handler first as it wraps all calls in a big try/ catch.
         // Only exceptions are handled so you should avoid triggering other errors or warnings.
         $app->add(ErrorHandler::class);
