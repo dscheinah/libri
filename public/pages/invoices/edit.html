@@ -117,6 +117,8 @@
             const formData = new FormData(event.target);
             if (edit) {
                 formData.append('id', data.id);
+            } else {
+                formData.append('type', type);
             }
             state.dispatch('invoice-save', formData);
         });
