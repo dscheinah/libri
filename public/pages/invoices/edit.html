@@ -115,6 +115,9 @@
         action('#invoices-edit', 'submit', (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
+            if (contact) {
+                formData.append('contact_id', contact.id)
+            }
             if (edit) {
                 formData.append('id', data.id);
             } else {
