@@ -3,7 +3,7 @@ const rollup = require('rollup');
 const rollupBabel = require('@rollup/plugin-babel');
 const rollupCommonJs = require('@rollup/plugin-commonjs');
 const rollupNodeResolve = require('@rollup/plugin-node-resolve');
-const rollupTerser = require('rollup-plugin-terser');
+const rollupTerser = require('@rollup/plugin-terser');
 const rollupVirtual = require('@rollup/plugin-virtual');
 
 /**
@@ -19,7 +19,7 @@ function defaults() {
         plugins: [
             // NodeResolve and CommonJS are needed to resolve the babel polyfills and runtime.
             rollupNodeResolve.nodeResolve({
-                moduleDirectories: ['node_modules', `${path.dirname(__filename)}/../node_modules`],
+                modulePaths: ['node_modules', path.normalize(`${path.dirname(__filename)}/../node_modules`)],
             }),
             rollupCommonJs(),
             rollupBabel.babel({
@@ -32,7 +32,7 @@ function defaults() {
                     '@babel/plugin-proposal-class-properties',
                 ],
             }),
-            rollupTerser.terser(),
+            rollupTerser(),
         ],
     };
 }
@@ -65,7 +65,7 @@ module.exports = {
     inline: async function (script) {
         const options = defaults();
         options.input = 'code';
-        options.external = /.*/;
+        options.external = /.*(cwd-replacement).*/;
         options.plugins.unshift(
             // As there is no file an extra plugin is needed.
             // Relative paths are masked to prevent rollup from replacing them with absolute file system paths.
