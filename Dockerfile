@@ -1,11 +1,11 @@
 # Install composer with optimized autoloading. This also needs the src to register the apps classes.
-FROM composer as vendor
+FROM composer AS vendor
 ADD ./composer.json /app/
 ADD ./src /app/src
 RUN composer install --no-dev --classmap-authoritative --ignore-platform-reqs
 
 # Build and minify all public files. This needs the vendor styles and js from composer.
-FROM node as build
+FROM node AS build
 ADD ./build /build
 WORKDIR /build
 RUN npm ci
