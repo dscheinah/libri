@@ -1,20 +1,9 @@
+import {fetchBackend} from './helper/fetch.js';
+
 export async function list() {
-    return [
-        {
-            id: 1,
-            name: 'Geschäftsbetrieb',
-        },
-        {
-            id: 2,
-            name: 'Ideeller Bereich',
-        },
-        {
-            id: 3,
-            name: 'Zweckbetrieb',
-        },
-    ];
+    return fetchBackend('/category/list');
 }
 
 export async function save(data) {
-    console.debug('category.save', data);
+    return fetchBackend('/category/save', {method: 'POST', body: data});
 }
