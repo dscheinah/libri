@@ -75,7 +75,7 @@
     const currency = {currency: 'EUR', style: 'currency'}, date = {year: 'numeric', month: '2-digit', day: '2-digit'};
 
     page.register('invoices-details', ({render, action, listen}) => {
-        let data = state.get('invoice') || {};
+        let data = state.get('invoice') || {ledgers: []};
 
         render(() => {
             switch (data.type) {
