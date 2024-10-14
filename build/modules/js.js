@@ -43,14 +43,23 @@ module.exports = {
      * All imports are resolved but exports of the main file are kept to be used in pages.
      *
      * @param {string} file
+     * @param {string} hash
      *
      * @returns {Promise<void>}
      */
-    entry: async function (file) {
+    entry: async function (file, hash) {
         const options = defaults();
         options.input = file;
         options.output.file = file.replace('../public/', 'dist/');
         options.output.compact = true;
+        options.plugins.push({
+            transform(code) {
+                return {
+                    code: code.replace(/\/(.*?)\.(html)/ig, `/$1.$2?${hash}`),
+                    map: null,
+                }
+            }
+        });
         const bundle = await rollup.rollup(options);
         await bundle.write(options.output);
     },
