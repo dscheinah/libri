@@ -6,4 +6,10 @@ return [
     'env' => getenv('APP_ENV'),
     // This can be used to prefix all routes. With that the app is not needed to be hosted on "/".
     'prefix' => '',
+    'mysql' => [
+        'server' => getenv('MYSQL_SERVER'),
+        'user' => getenv('MYSQL_USER'),
+        'password' => getenv('MYSQL_PASSWORD'),
+        'database' => getenv('MYSQL_DATABASE'),
+    ],
 ];

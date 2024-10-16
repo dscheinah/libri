@@ -8,3 +8,20 @@ services:
       - .:/var/www/html
     environment:
       - APP_ENV
+      - MYSQL_SERVER=db
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+  db:
+    image: mysql
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - db:/var/lib/mysql
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=1
+      - MYSQL_ONETIME_PASSWORD=1
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
+volumes:
+  db:

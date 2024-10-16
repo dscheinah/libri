@@ -23,6 +23,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
  && echo "ServerTokens Prod" >> /etc/apache2/apache2.conf \
  && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini" \
  && docker-php-ext-enable opcache
+RUN docker-php-ext-install mysqli
 # Add the complete PHP sources.
 ADD ./src /var/www/html/src
 # Also use the default configuration. This already uses getenv to be compatible with docker.
