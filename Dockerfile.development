@@ -1,0 +1,8 @@
+# syntax = edrevo/dockerfile-plus
+
+INCLUDE+ ./Dockerfile
+
+RUN pecl install xdebug && docker-php-ext-enable xdebug
+
+RUN apt-get update && apt-get install -y git zip unzip
+COPY --from=composer:latest /usr/bin/composer /usr/bin/
