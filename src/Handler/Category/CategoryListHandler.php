@@ -2,6 +2,7 @@
 
 namespace App\Handler\Category;
 
+use App\Repository\CategoryRepository;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -11,24 +12,12 @@ class CategoryListHandler implements RequestHandlerInterface
 {
     public function __construct(
         private readonly ResponseHelperInterface $helper,
+        private readonly CategoryRepository $repository,
     ) {
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return $this->helper->create(200, [
-            [
-                'id' => 1,
-                'name' => 'Geschäftsbetrieb',
-            ],
-            [
-                'id' => 2,
-                'name' => 'Ideeller Bereich',
-            ],
-            [
-                'id' => 3,
-                'name' => 'Zweckbetrieb',
-            ],
-        ]);
+        return $this->helper->create(200, $this->repository->listCategories());
     }
 }
