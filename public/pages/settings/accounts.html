@@ -65,9 +65,13 @@
             helper.list('#settings-accounts tbody', data, (item, index) => {
                 const clone = template.cloneNode(true);
                 keys.forEach((key) => {
-                    clone.querySelector(`[name^=${key}]`).value = item[key] || '';
+                    const element = clone.querySelector(`[name^=${key}]`);
+                    element.value = item[key] || '';
+                    element.dataset.value = item[key] || '';
                 });
-                clone.querySelector('[name^=real]').checked = item.real;
+                let real = clone.querySelector('[name^=real]');
+                real.checked = item.real;
+                real.dataset.checked = item.real;
                 clone.querySelector('[data-delete]').dataset.delete = index;
                 return clone;
             });
