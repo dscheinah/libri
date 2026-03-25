@@ -88,6 +88,9 @@
         });
         action('#settings-accounts', 'submit', (event) => {
             event.preventDefault();
+            helper.element('#settings-accounts tbody').querySelectorAll('tr').forEach((row) => {
+                row.querySelector('[name^=real]').value = row.querySelector('[name^=no]').value;
+            });
             state.dispatch('accounts-save', new FormData(event.target));
         });
 
