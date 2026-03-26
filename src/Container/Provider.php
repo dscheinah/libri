@@ -42,12 +42,16 @@ use App\Repository\CategoryRepository;
 use App\Repository\CategoryRepositoryFactory;
 use App\Repository\ContactRepository;
 use App\Repository\ContactRepositoryFactory;
+use App\Repository\DashboardRepository;
+use App\Repository\DashboardRepositoryFactory;
 use App\Repository\MasterRepository;
 use App\Repository\MasterRepositoryFactory;
 use App\RouterFactory;
 use App\Storage\AccountStorage;
 use App\Storage\CategoryStorage;
 use App\Storage\ContactStorage;
+use App\Storage\InvoiceStorage;
+use App\Storage\LedgerStorage;
 use App\Storage\MasterStorage;
 use Sx\Application\Container\ApplicationProvider;
 use Sx\Container\Injector;
@@ -118,11 +122,14 @@ class Provider implements ProviderInterface
         $injector->set(AccountRepository::class, AccountRepositoryFactory::class);
         $injector->set(CategoryRepository::class, CategoryRepositoryFactory::class);
         $injector->set(ContactRepository::class, ContactRepositoryFactory::class);
+        $injector->set(DashboardRepository::class, DashboardRepositoryFactory::class);
         $injector->set(MasterRepository::class, MasterRepositoryFactory::class);
 
         $injector->set(AccountStorage::class, StorageFactory::class);
         $injector->set(CategoryStorage::class, StorageFactory::class);
         $injector->set(ContactStorage::class, StorageFactory::class);
+        $injector->set(InvoiceStorage::class, StorageFactory::class);
+        $injector->set(LedgerStorage::class, StorageFactory::class);
         $injector->set(MasterStorage::class, StorageFactory::class);
     }
 }
