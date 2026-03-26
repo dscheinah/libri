@@ -2,6 +2,7 @@
 
 namespace App\Handler\Master;
 
+use App\Repository\MasterRepository;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 use Sx\Message\Response\ResponseHelperInterface;
@@ -15,6 +16,7 @@ class MasterHandlerFactory implements FactoryInterface
     {
         return new $class(
             $injector->get(ResponseHelperInterface::class),
+            $injector->get(MasterRepository::class),
         );
     }
 }
