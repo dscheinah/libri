@@ -2,6 +2,7 @@
 
 namespace App\Handler\Contact;
 
+use App\Repository\ContactRepository;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 use Sx\Message\Response\ResponseHelperInterface;
@@ -15,6 +16,7 @@ class ContactHandlerFactory implements FactoryInterface
     {
         return new $class(
             $injector->get(ResponseHelperInterface::class),
+            $injector->get(ContactRepository::class),
         );
     }
 }
