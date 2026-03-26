@@ -54,8 +54,8 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
 <td>${item.name}</td>
-<td><a href="mailto:${item.mail}">${item.mail}</a></td>
-<td><a href="tel:${item.phone.replace(/[^+\d]/g, '')}">${item.phone}</a></td>
+<td><a href="mailto:${item.mail || ''}">${item.mail || ''}</a></td>
+<td><a href="tel:${item.phone?.replace(/[^+\d]/g, '') || ''}">${item.phone || ''}</a></td>
 <td><button type="button" value="${item.id}" data-contact><span class="sx-button-icon">▽</span> mehr</button></td>
 `;
                 return row;
