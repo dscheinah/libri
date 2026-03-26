@@ -39,8 +39,8 @@ class AccountRepository
     {
         foreach ($nos as $index => $no) {
             $name = $names[$index] ?? '';
-            $categoryId = empty($categories[$index]) ? null : (int) $categories[$index];
             $real = in_array($no, $reals);
+            $categoryId = $real || empty($categories[$index]) ? null : (int) $categories[$index];
             $this->storage->upsert($no, $name, $categoryId, $real);
         }
         $this->storage->removeAllWithout($nos);
