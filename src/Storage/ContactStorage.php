@@ -24,7 +24,7 @@ class ContactStorage extends Storage
     }
 
     /**
-     * @return array<string, string|null|float>|null
+     * @return array<string, int|string|null|float>|null
      */
     public function fetchOne(int $id): ?array
     {
