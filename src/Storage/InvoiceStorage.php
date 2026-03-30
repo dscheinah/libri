@@ -2,6 +2,7 @@
 
 namespace App\Storage;
 
+use Generator;
 use Sx\Data\Storage;
 
 class InvoiceStorage extends Storage
@@ -29,5 +30,98 @@ class InvoiceStorage extends Storage
             return $result['count'] ?? 0;
         }
         return 0;
+    }
+
+    public function fetchAll(int $type): Generator
+    {
+        return $this->fetch(
+            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
+                FROM `invoices` 
+                WHERE `type` = ? 
+                ORDER BY `id` DESC',
+            [$type]
+        );
+    }
+
+    public function fetchSome(int $type, string $search): Generator
+    {
+        $search = '%' . $search . '%';
+        return $this->fetch(
+            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
+                FROM `invoices` 
+                WHERE `type` = ? AND (`id` LIKE ? OR `description` LIKE ? OR `reference` LIKE ?) 
+                ORDER BY `id` DESC',
+            [$type, $search, $search, $search]
+        );
+    }
+
+    /**
+     * @return array<string, int|string|null|float>|null
+     */
+    public function fetchOne(int $id): ?array
+    {
+        $invoice = $this->fetch('SELECT * FROM `invoices` WHERE `id` = ?', [$id])->current();
+        if ($invoice) {
+            assert(is_array($invoice));
+            return $invoice;
+        }
+        return null;
+    }
+
+    public function removeOpenInvoice(int $id): int
+    {
+        return $this->execute(
+            'DELETE FROM `invoices` WHERE `id` = ? AND `closed` = false AND `finished` = false',
+            [$id]
+        );
+    }
+
+    public function create(
+        int $type,
+        string $date,
+        float $amount,
+        string $description,
+        string $reference,
+        bool $noDocument,
+        string $contactAddress,
+        ?int $contactId,
+    ): void {
+        $this->execute(
+            'INSERT INTO `invoices` 
+                (`type`, `date`, `amount`, `description`, `reference`, `no_document`, `contact_address`, `contact_id`) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$type, $date, $amount, $description, $reference, $noDocument, $contactAddress, $contactId]
+        );
+    }
+
+    public function updateAll(
+        int $id,
+        string $date,
+        float $amount,
+        string $description,
+        string $reference,
+        bool $noDocument,
+        string $contactAddress,
+    ): void {
+        $this->execute(
+            'UPDATE `invoices` SET 
+                `date` = ?, `amount` = ?, `description` = ?, `reference` = ?, `no_document` = ?, `contact_address` = ?
+                WHERE `id` = ?',
+            [$date, $amount, $description, $reference, $noDocument, $contactAddress, $id]
+        );
+    }
+
+    public function updateDetails(
+        int $id,
+        string $description,
+        string $reference,
+        bool $noDocument,
+    ): void {
+        $this->execute(
+            'UPDATE `invoices` SET 
+                `description` = ?, `reference` = ?, `no_document` = ?
+                WHERE `id` = ?',
+            [$description, $reference, $noDocument, $id]
+        );
     }
 }
