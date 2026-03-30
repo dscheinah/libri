@@ -17,7 +17,7 @@ CREATE TABLE `accounts`
 (
     `no`          VARCHAR(128),
     `name`        VARCHAR(512) NOT NULL,
-    `real`        BOOL,
+    `real`        BOOL DEFAULT false,
     `category_id` INT UNSIGNED,
 
     INDEX (`category_id`),
@@ -49,11 +49,11 @@ CREATE TABLE `invoices`
     `reference`       VARCHAR(512),
     `document`        LONGBLOB,
     `document_name`   VARCHAR(512),
-    `no_document`     BOOL,
-    `finished`        BOOL,
+    `no_document`     BOOL DEFAULT false,
+    `finished`        BOOL DEFAULT false,
     `contact_id`      INT UNSIGNED,
     `contact_address` TEXT,
-    `closed`          BOOL,
+    `closed`          BOOL DEFAULT false,
 
     INDEX (`contact_id`),
     INDEX (`date`),
@@ -74,9 +74,9 @@ CREATE TABLE `ledgers`
     `amount`          DECIMAL(10, 2) NOT NULL,
     `description`     VARCHAR(512),
     `reference`       VARCHAR(512),
-    `canceled`        BOOL,
+    `canceled`        BOOL DEFAULT false,
     `canceled_reason` VARCHAR(512),
-    `closed`          BOOL,
+    `closed`          BOOL DEFAULT false,
 
     INDEX (`account_no`),
     INDEX (`offset_no`),
