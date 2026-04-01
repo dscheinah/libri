@@ -153,16 +153,16 @@
         },
         {
             "name": "dscheinah/sx-js",
-            "version": "v1.1.0",
+            "version": "v1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dscheinah/sx-js.git",
-                "reference": "1f9a07cbc7464ddae906935bca79cf380f5d2afe"
+                "reference": "693f6ed730fa65f3c928c929e5c4d73de8c82613"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dscheinah/sx-js/zipball/1f9a07cbc7464ddae906935bca79cf380f5d2afe",
-                "reference": "1f9a07cbc7464ddae906935bca79cf380f5d2afe",
+                "url": "https://api.github.com/repos/dscheinah/sx-js/zipball/693f6ed730fa65f3c928c929e5c4d73de8c82613",
+                "reference": "693f6ed730fa65f3c928c929e5c4d73de8c82613",
                 "shasum": ""
             },
             "type": "library",
@@ -173,9 +173,9 @@
             "description": "Core JavaScript framework used in sx applications.",
             "support": {
                 "issues": "https://github.com/dscheinah/sx-js/issues",
-                "source": "https://github.com/dscheinah/sx-js/tree/v1.1.0"
+                "source": "https://github.com/dscheinah/sx-js/tree/v1.1.1"
             },
-            "time": "2025-02-09T18:44:11+00:00"
+            "time": "2026-04-01T22:28:03+00:00"
         },
         {
             "name": "dscheinah/sx-log",
