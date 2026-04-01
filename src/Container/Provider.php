@@ -46,6 +46,8 @@ use App\Repository\DashboardRepository;
 use App\Repository\DashboardRepositoryFactory;
 use App\Repository\InvoiceRepository;
 use App\Repository\InvoiceRepositoryFactory;
+use App\Repository\LedgerRepository;
+use App\Repository\LedgerRepositoryFactory;
 use App\Repository\MasterRepository;
 use App\Repository\MasterRepositoryFactory;
 use App\RouterFactory;
@@ -126,6 +128,7 @@ class Provider implements ProviderInterface
         $injector->set(ContactRepository::class, ContactRepositoryFactory::class);
         $injector->set(DashboardRepository::class, DashboardRepositoryFactory::class);
         $injector->set(InvoiceRepository::class, InvoiceRepositoryFactory::class);
+        $injector->set(LedgerRepository::class, LedgerRepositoryFactory::class);
         $injector->set(MasterRepository::class, MasterRepositoryFactory::class);
 
         $injector->set(AccountStorage::class, StorageFactory::class);

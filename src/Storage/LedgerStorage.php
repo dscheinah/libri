@@ -36,4 +36,71 @@ class LedgerStorage extends Storage
         }
         return 0;
     }
+
+    public function fetchSome(string $account, string $search): Generator
+    {
+        $account = '%' . $account . '%';
+        $search = '%' . $search . '%';
+        return $this->fetch(
+            'SELECT 
+                    l.`id`, 
+                    l.`date`,
+                    l.`account_no`, 
+                    a.`name` AS `account_name`,
+                    l.`offset_no`, 
+                    o.name AS `offset_name`,
+                    l.`description`, 
+                    l.`amount`,
+                    l.`closed`, 
+                    l.`reference`, 
+                    l.`canceled` 
+                FROM `ledgers` l
+                    LEFT JOIN `accounts` a ON a.`no` = l.`account_no`
+                    LEFT JOIN `accounts` o ON o.`no` = l.`offset_no`
+                WHERE `account_no` LIKE ? AND (`id` LIKE ? OR `description` LIKE ? OR `reference` LIKE ?) 
+                ORDER BY `id` DESC',
+            [$account, $search, $search, $search]
+        );
+    }
+
+    /**
+     * @return array<string, int|string|null|float>|null
+     */
+    public function fetchOne(int $id): ?array
+    {
+        $ledger = $this->fetch(
+            'SELECT l.*, a.`name` AS `account_name`, o.name AS `offset_name` 
+                FROM `ledgers` l
+                    LEFT JOIN `accounts` a ON a.`no` = l.`account_no`
+                    LEFT JOIN `accounts` o ON o.`no` = l.`offset_no`
+                WHERE `id` = ?',
+            [$id]
+        )->current();
+        if ($ledger) {
+            assert(is_array($ledger));
+            return $ledger;
+        }
+        return null;
+    }
+
+    public function updateCanceled(int $id, string $reason): void
+    {
+        $this->execute('UPDATE `ledgers` SET `canceled` = true, `canceled_reason` = ? WHERE `id` = ?', [$reason, $id]);
+    }
+
+    public function create(
+        string $date,
+        string $accountNo,
+        string $offsetNo,
+        float $amount,
+        string $description,
+        string $reference,
+    ): void {
+        $latest = $this->fetch('SELECT MAX(`id`) AS `id` FROM `ledgers` FOR UPDATE')->current()['id'] ?? 0;
+        $this->execute(
+            'INSERT INTO `ledgers` (`id`, `date`, `account_no`, `offset_no`, `amount`, `description`, `reference`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [$latest + 1, $date, $accountNo, $offsetNo, $amount, $description, $reference]
+        );
+    }
 }
