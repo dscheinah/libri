@@ -18,6 +18,7 @@ class InvoiceRepository
     {
         $invoices = [];
         foreach ($search ? $this->storage->fetchSome($type, $search) : $this->storage->fetchAll($type) as $invoice) {
+            assert(is_array($invoice));
             $invoices[] = [
                 'id' => (int) $invoice['id'],
                 'type' => (int) $invoice['type'],
@@ -74,7 +75,7 @@ class InvoiceRepository
     public function saveInvoice(array $data): bool
     {
         if ($data['id'] ?? null) {
-            $invoice = $this->storage->fetchOne($data['id']);
+            $invoice = $this->storage->fetchOne((int) $data['id']);
             if (!$invoice) {
                 return false;
             }
