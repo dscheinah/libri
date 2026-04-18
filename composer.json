@@ -11,7 +11,7 @@
         "dscheinah/sx-data": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.3",
+        "phpunit/phpunit": "^12.5",
         "roave/security-advisories": "dev-latest",
         "phpstan/phpstan": "^1.12"
     },
