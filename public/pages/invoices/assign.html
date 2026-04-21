@@ -61,8 +61,7 @@
             helper.set('#invoices-assign-description', 'innerHTML', invoice.description);
             helper.set('#invoices-assign-amount', 'innerHTML', (invoice.amount).toLocaleString('de', currency));
             helper.set('#invoices-assign-amount', 'className', invoice.amount > 0 ? 'income' : 'expense');
-            let preselectLedgers = ledgers.filter((ledger) => ledger.amount * invoice.amount > 0);
-            helper.list('#invoices-assign tbody', preselectLedgers, (ledger) => {
+            helper.list('#invoices-assign tbody', ledgers, (ledger) => {
                 const tr = document.createElement('tr'), checkbox = document.createElement('input');
                 checkbox.type ='checkbox';
                 checkbox.name = 'ledgers[]';
