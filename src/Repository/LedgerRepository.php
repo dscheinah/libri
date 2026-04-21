@@ -41,6 +41,25 @@ class LedgerRepository
     }
 
     /**
+     * @return list<mixed>
+     */
+    public function listOpenLedgers(): array
+    {
+        $ledgers = [];
+        foreach ($this->storage->fetchOpen() as $ledger) {
+            assert(is_array($ledger));
+            $ledgers[] = [
+                'id' => (int) $ledger['id'],
+                'date' => $ledger['date'],
+                'description' => $ledger['description'],
+                'amount' => (float) $ledger['amount'],
+                'reference' => $ledger['reference'],
+            ];
+        }
+        return $ledgers;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function getLedger(int $id): ?array

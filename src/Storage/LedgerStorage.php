@@ -63,6 +63,14 @@ class LedgerStorage extends Storage
         );
     }
 
+    public function fetchOpen(): Generator
+    {
+        return $this->fetch(
+            'SELECT `id`, `date`, `description`, `amount`, `reference` FROM `ledgers` 
+                WHERE `closed` = false AND `canceled` = false'
+        );
+    }
+
     /**
      * @return array<string, int|string|null|float>|null
      */
