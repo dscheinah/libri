@@ -38,7 +38,7 @@
             <label for="invoices-assign-credit">Restbetrag gutschreiben</label>
         </div>
         <div class="sx-actions">
-            <button type="submit"><span class="sx-button-icon">🖫</span> Zuordnung anwenden</button>
+            <button type="submit" disabled><span class="sx-button-icon">🖫</span> Zuordnung anwenden</button>
         </div>
     </form>
 </template>
@@ -50,6 +50,13 @@
 
     page.register('invoices-assign', ({render, show, action, listen}) => {
         let invoice = state.get('invoice'), ledgers = state.get('ledgers-assignable') || [];
+
+        function enableSubmitBySelectedAmounts() {
+            const amount = Array.from(helper.elements('#invoices-assign :checked'))
+                .reduce((amount, checkbox) =>
+                    amount + ledgers.find((ledger) => ledger.id === parseInt(checkbox.value))?.amount, 0.0);
+            helper.set('#invoices-assign [type=submit]', 'disabled', amount !== invoice.amount);
+        }
 
         render(() => {
             if (!invoice) {
@@ -75,9 +82,12 @@
 `;
                 return tr;
             });
+            enableSubmitBySelectedAmounts();
         });
 
         show(() => state.dispatch('ledgers-assignable', null));
+
+        action('#invoices-assign', 'change', enableSubmitBySelectedAmounts);
 
         action('#invoices-assign', 'submit', (event) => {
             event.preventDefault();

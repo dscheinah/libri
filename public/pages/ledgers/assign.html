@@ -36,7 +36,7 @@
             <tbody></tbody>
         </table>
         <div class="sx-actions">
-            <button type="submit"><span class="sx-button-icon">🖫</span> Zuordnung anwenden</button>
+            <button type="submit" disabled><span class="sx-button-icon">🖫</span> Zuordnung anwenden</button>
             <button type="button" data-invoice>
                 <span class="sx-button-icon">＋</span> neuen Beleg erstellen
             </button>
@@ -52,6 +52,13 @@
 
     page.register('ledgers-assign', ({render, show, action, listen}) => {
         let ledger = state.get('ledger'), invoices = state.get('invoices-assignable') || [];
+
+        function enableSubmitBySelectedAmounts() {
+            const amount = Array.from(helper.elements('#ledgers-assign :checked'))
+                .reduce((amount, checkbox) =>
+                    amount + invoices.find((invoice) => invoice.id === parseInt(checkbox.value))?.amount, 0.0);
+            helper.set('#ledgers-assign [type=submit]', 'disabled', amount !== ledger.amount);
+        }
 
         render(() => {
             if (!ledger) {
@@ -77,9 +84,12 @@
 `;
                 return tr;
             });
+            enableSubmitBySelectedAmounts();
         });
 
         show(() => state.dispatch('invoices-assignable', null));
+
+        action('#ledgers-assign', 'change', enableSubmitBySelectedAmounts);
 
         action('#ledgers-assign', 'submit', (event) => {
             event.preventDefault();
