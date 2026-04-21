@@ -55,6 +55,14 @@ class InvoiceStorage extends Storage
         );
     }
 
+    public function fetchOpen(): Generator
+    {
+        return $this->fetch(
+            'SELECT `id`, `type`, `date`, `description`, `amount`, `reference` FROM `invoices` 
+                WHERE `closed` = false AND (`type` = 1 OR `finished` = true)'
+        );
+    }
+
     /**
      * @return array<string, int|string|null|float>|null
      */

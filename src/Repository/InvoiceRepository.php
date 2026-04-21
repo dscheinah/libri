@@ -36,6 +36,26 @@ class InvoiceRepository
     }
 
     /**
+     * @return list<mixed>
+     */
+    public function listOpenInvoices(): array
+    {
+        $invoices = [];
+        foreach ($this->storage->fetchOpen() as $invoice) {
+            assert(is_array($invoice));
+            $invoices[] = [
+                'id' => (int) $invoice['id'],
+                'type' => (int) $invoice['type'],
+                'date' => $invoice['date'],
+                'description' => $invoice['description'],
+                'amount' => (float) $invoice['amount'],
+                'reference' => $invoice['reference'],
+            ];
+        }
+        return $invoices;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function getInvoice(int $id): ?array
