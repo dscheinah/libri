@@ -78,7 +78,7 @@ class InvoiceRepository
             'description' => $invoice['description'],
             'amount' => (float) $invoice['amount'],
             'assigned' => (bool) $invoice['closed'],
-            'ledgers' => [],
+            'ledgers' => iterator_to_array($this->assignmentStorage->fetchAssignedLedgersForInvoice($id)),
             'reference' => $invoice['reference'] ?? null,
             'document' => null,
             'no_document' => (bool) $invoice['no_document'],

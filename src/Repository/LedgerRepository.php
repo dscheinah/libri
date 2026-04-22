@@ -85,7 +85,7 @@ class LedgerRepository
             'description' => $ledger['description'],
             'amount' => (float) $ledger['amount'],
             'assigned' => (bool) $ledger['closed'],
-            'invoices' => [],
+            'invoices' => iterator_to_array($this->assignmentStorage->fetchAssignedInvoicesForLedger($id)),
             'reference' => $ledger['reference'],
             'canceled' => (bool) $ledger['canceled'],
         ];

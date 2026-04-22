@@ -2,6 +2,7 @@
 
 namespace App\Storage;
 
+use Generator;
 use Sx\Data\Storage;
 
 class AssignmentStorage extends Storage
@@ -58,5 +59,23 @@ class AssignmentStorage extends Storage
     public function markInvoiceClosed(int $invoiceId): void
     {
         $this->execute('UPDATE `invoices` SET `closed` = 1 WHERE `id` = ?', [$invoiceId]);
+    }
+
+    public function fetchAssignedInvoicesForLedger(int $id): Generator
+    {
+        return $this->fetch(
+            'SELECT i.`id`, i.`description` FROM `invoices` i 
+                INNER JOIN `ledgers_x_invoices` x ON i.`id` = x.`invoice_id` WHERE x.`ledger_id` = ?',
+            [$id]
+        );
+    }
+
+    public function fetchAssignedLedgersForInvoice(int $id): Generator
+    {
+        return $this->fetch(
+            'SELECT l.`id`, l.`description` FROM `ledgers` l 
+                INNER JOIN `ledgers_x_invoices` x ON l.`id` = x.`ledger_id` WHERE x.`invoice_id` = ?',
+            [$id]
+        );
     }
 }
