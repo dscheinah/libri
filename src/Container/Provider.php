@@ -52,6 +52,7 @@ use App\Repository\MasterRepository;
 use App\Repository\MasterRepositoryFactory;
 use App\RouterFactory;
 use App\Storage\AccountStorage;
+use App\Storage\AssignmentStorage;
 use App\Storage\CategoryStorage;
 use App\Storage\ContactStorage;
 use App\Storage\InvoiceStorage;
@@ -132,6 +133,7 @@ class Provider implements ProviderInterface
         $injector->set(MasterRepository::class, MasterRepositoryFactory::class);
 
         $injector->set(AccountStorage::class, StorageFactory::class);
+        $injector->set(AssignmentStorage::class, StorageFactory::class);
         $injector->set(CategoryStorage::class, StorageFactory::class);
         $injector->set(ContactStorage::class, StorageFactory::class);
         $injector->set(InvoiceStorage::class, StorageFactory::class);

@@ -2,12 +2,15 @@
 
 namespace App\Repository;
 
+use App\Storage\AssignmentStorage;
 use App\Storage\LedgerStorage;
+use DomainException;
 
 class LedgerRepository
 {
     public function __construct(
         private readonly LedgerStorage $storage,
+        private readonly AssignmentStorage $assignmentStorage,
     ) {
     }
 
@@ -125,5 +128,34 @@ class LedgerRepository
                 return true;
             }
         );
+    }
+
+    /**
+     * @param list<int> $invoiceIds
+     */
+    public function assignInvoices(int $ledgerId, array $invoiceIds): void
+    {
+        $this->assignmentStorage->transactional(function () use ($ledgerId, $invoiceIds) {
+            $ledger = $this->assignmentStorage->fetchOpenLedger($ledgerId);
+            if (!$ledger) {
+                throw new DomainException('ledger does not exist', 400);
+            }
+            $amount = 0.0;
+            foreach ($invoiceIds as $invoiceId) {
+                $invoice = $this->assignmentStorage->fetchOpenInvoice($invoiceId);
+                if (!$invoice) {
+                    throw new DomainException('invoice does not exist', 400);
+                }
+                $this->assignmentStorage->createAssignment($ledgerId, $invoiceId);
+                $this->assignmentStorage->markInvoiceClosed($invoiceId);
+                $amount += $invoice['amount'];
+            }
+            assert(is_numeric($ledger['amount']));
+            if ((float) $ledger['amount'] !== $amount) {
+                throw new DomainException('amounts do not match', 400);
+            }
+            $this->assignmentStorage->markLedgerClosed($ledgerId);
+            return true;
+        });
     }
 }
