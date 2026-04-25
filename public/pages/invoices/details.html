@@ -128,6 +128,7 @@
             if (data.document) {
                 helper.set('#invoices-details-document', 'href', data.document.link);
                 helper.set('#invoices-details-document', 'innerHTML', data.document.name);
+                helper.set('#invoices-details-document', 'download', data.document.name);
                 helper.style('#invoices-details-document', 'display', '');
                 helper.style('#invoices-details-no-document', 'display', 'none');
             } else {
