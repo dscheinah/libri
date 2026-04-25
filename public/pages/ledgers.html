@@ -64,24 +64,37 @@
 
     const currency = {currency: 'EUR', style: 'currency'}, date = {year: '2-digit', month: '2-digit', day: '2-digit'};
 
-    function load() {
-        const form = helper.element('#ledgers');
-        state.dispatch('ledgers', {
-            account: form.account ? form.account.value : null,
-            search: form.search.value,
-        });
-    }
-
     page.register('ledgers', ({render, show, action, listen}) => {
         let accounts = state.get('accounts-real') || [];
         let data = state.get('ledgers') || [];
+        let tab = state.get('ledgers-account');
+
+        function load() {
+            const form = helper.element('#ledgers');
+            state.dispatch('ledgers', {
+                account: tab || null,
+                search: form.search.value,
+            });
+        }
 
         render(() => {
             helper.list('#ledgers-accounts', accounts, (account) => {
                 const label = document.createElement('label');
                 label.classList.add('sx-tab');
-                let name = [account.no, account.name].filter((v) => v);
-                label.innerHTML = `<input type="radio" name="account" value="${account.no}">${name.join(' - ')}`;
+
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'account';
+                input.value = account.no;
+
+                if (account.no === tab) {
+                    label.classList.add('sx-selected');
+                    input.setAttribute('checked', 'checked');
+                }
+
+                label.appendChild(input);
+                label.innerHTML += [account.no, account.name].filter((v) => v).join(' - ');
+
                 return label;
             });
             helper.list('#ledgers-list', data, (item) => {
@@ -109,14 +122,7 @@
         });
 
         action('#ledgers [name=account]', 'input', (event) => {
-            helper.elements('#ledgers .sx-tab').forEach((element) => element.classList.remove('sx-selected'));
-            if (event.target.checked) {
-                event.target.parentNode.classList.add('sx-selected');
-            }
-            load();
-        });
-        action('#ledgers .sx-selected', 'click', () => {
-            helper.set('#ledgers :checked', 'type', 'checkbox');
+            state.dispatch('ledgers-account', event.target.checked && event.target.value);
         });
         action('#ledgers', 'submit', (event) => {
             event.preventDefault();
@@ -129,6 +135,10 @@
 
         listen('accounts-real', (data) => accounts = data);
         listen('ledgers', (ledgers) => data = ledgers);
+        listen('ledgers-account', (account) => {
+            tab = account;
+            load();
+        })
     });
 </script>
 
