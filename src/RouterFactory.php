@@ -27,6 +27,7 @@ use App\Handler\ListHandler;
 use App\Handler\Master\MasterLoadHandler;
 use App\Handler\Master\MasterSaveHandler;
 use App\Handler\Report\DashboardHandler;
+use Sx\Application\Middleware\UploadedFilesMiddleware;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 use Sx\Server\MiddlewareHandlerInterface;
@@ -73,6 +74,7 @@ class RouterFactory implements FactoryInterface
         $router->get($prefix . 'invoice/list', InvoiceListHandler::class);
         $router->get($prefix . 'invoice/list-assignable', InvoiceListAssignableHandler::class);
         $router->get($prefix . 'invoice/load', InvoiceLoadHandler::class);
+        $router->post($prefix . 'invoice/save', UploadedFilesMiddleware::class);
         $router->post($prefix . 'invoice/save', InvoiceSaveHandler::class);
         $router->post($prefix . 'invoice/save-assign', InvoiceSaveAssignHandler::class);
         $router->delete($prefix . 'invoice/remove', InvoiceRemoveHandler::class);

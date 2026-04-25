@@ -93,8 +93,8 @@ class InvoiceStorage extends Storage
         bool $noDocument,
         string $contactAddress,
         ?int $contactId,
-    ): void {
-        $this->execute(
+    ): int {
+        return $this->insert(
             'INSERT INTO `invoices` 
                 (`type`, `date`, `amount`, `description`, `reference`, `no_document`, `contact_address`, `contact_id`) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
@@ -130,6 +130,14 @@ class InvoiceStorage extends Storage
                 `description` = ?, `reference` = ?, `no_document` = ?
                 WHERE `id` = ?',
             [$description, $reference, $noDocument, $id]
+        );
+    }
+
+    public function updateDocument(int $id, string $name, string $content): void
+    {
+        $this->execute(
+            'UPDATE `invoices` SET `document_name` = ?, `document` = ? WHERE `id` = ?',
+            [$name, $content, $id]
         );
     }
 }

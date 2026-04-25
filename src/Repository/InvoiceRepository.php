@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Storage\AssignmentStorage;
 use App\Storage\InvoiceStorage;
 use DomainException;
+use Psr\Http\Message\UploadedFileInterface;
 
 class InvoiceRepository
 {
@@ -67,6 +68,10 @@ class InvoiceRepository
         if (!$invoice) {
             return null;
         }
+        $document = $invoice['document'] ? [
+            'link' => 'data:application/pdf;base64,' . base64_encode((string) $invoice['document']),
+            'name' => $invoice['document_name'] ?? '- Dokument -',
+        ] : null;
         $contact = array_filter([
             'id' => $invoice['contact_id'] ?? null,
             'address' => $invoice['contact_address'] ?? null,
@@ -80,7 +85,7 @@ class InvoiceRepository
             'assigned' => (bool) $invoice['closed'],
             'ledgers' => iterator_to_array($this->assignmentStorage->fetchAssignedLedgersForInvoice($id)),
             'reference' => $invoice['reference'] ?? null,
-            'document' => null,
+            'document' => $document,
             'no_document' => (bool) $invoice['no_document'],
             'contact' => $contact ?: null,
             'finished' => (bool) $invoice['finished'],
@@ -95,23 +100,25 @@ class InvoiceRepository
     /**
      * @param array<string, int|string> $data
      */
-    public function saveInvoice(array $data): bool
+    public function saveInvoice(array $data, ?UploadedFileInterface $document = null): bool
     {
         if ($data['id'] ?? null) {
-            $invoice = $this->storage->fetchOne((int) $data['id']);
+            $id = (int) $data['id'];
+
+            $invoice = $this->storage->fetchOne($id);
             if (!$invoice) {
                 return false;
             }
             if ($invoice['closed'] || $invoice['finished']) {
                 $this->storage->updateDetails(
-                    (int) $data['id'],
+                    $id,
                     (string) ($data['description'] ?? ''),
                     (string) ($data['reference'] ?? ''),
                     (bool) ($data['no_document'] ?? false),
                 );
             } else {
                 $this->storage->updateAll(
-                    (int) $data['id'],
+                    $id,
                     (string) ($data['date'] ?? ''),
                     (float) ($data['amount'] ?? 0.0),
                     (string) ($data['description'] ?? ''),
@@ -124,7 +131,7 @@ class InvoiceRepository
             if (!($data['type'] ?? null)) {
                 return false;
             }
-            $this->storage->create(
+            $id = $this->storage->create(
                 (int) $data['type'],
                 (string) ($data['date'] ?? ''),
                 (float) ($data['amount'] ?? 0.0),
@@ -135,6 +142,11 @@ class InvoiceRepository
                 isset($data['contact_id']) ? (int) $data['contact_id'] : null,
             );
         }
+
+        if ($document) {
+            $this->storage->updateDocument($id, (string) $document->getClientFilename(), $document->getStream());
+        }
+
         return true;
     }
 

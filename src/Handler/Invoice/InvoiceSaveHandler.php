@@ -19,7 +19,7 @@ class InvoiceSaveHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();
-        if (!$this->repository->saveInvoice($data)) {
+        if (!$this->repository->saveInvoice($data, $request->getUploadedFiles()['document'] ?? null)) {
             return $this->helper->create(400, 'Fehlerhafte Daten');
         }
         return $this->helper->create(204);
