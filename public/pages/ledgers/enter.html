@@ -93,7 +93,8 @@
         });
 
         action('#ledgers-enter', 'input', (event, target) => {
-            const form = new FormData(target), data = {length: helper.elements('#ledgers-enter-list tr').length};
+            const form = new FormData(target),
+                  data = {length: helper.elements('#ledgers-enter-list tr').length};
             let needsLine = false;
             keys.forEach((key) => {
                 data[key] = form.getAll(`${key}[]`);
@@ -112,6 +113,13 @@
                 tr = tr.parentNode;
             }
             tr.parentNode.removeChild(tr);
+
+            const form = new FormData(helper.element('#ledgers-enter')),
+                  data = {length: helper.elements('#ledgers-enter-list tr').length};
+            keys.forEach((key) => {
+                data[key] = form.getAll(`${key}[]`);
+            });
+            state.dispatch('ledgers-enter', data);
         });
         action('#ledgers-enter', 'submit', (event) => {
             event.preventDefault();

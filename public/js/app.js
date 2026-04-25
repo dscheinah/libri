@@ -100,7 +100,7 @@ state.handle('dashboard', report.dashboard);
 state.handle('ledgers', ({account, search}) => ledger.list(account, search));
 state.handle('ledgers-assignable', ledger.assignable);
 state.handle('ledgers-assign', ledger.assign);
-state.handle('ledgers-save', ledger.save);
+state.handle('ledgers-save', async (payload, next) => next(await ledger.save(payload)));
 state.handle('ledger', ledger.get);
 state.handle('ledger-cancel', ledger.cancel);
 state.handle('invoices', ({type, search}) => invoice.list(type, search));
@@ -114,6 +114,15 @@ state.handle('master-save', master.save);
 
 // This is a simple example for async global state management.
 state.handle('backend-data', (payload) => data.load(payload));
+
+state.handle('ledgers-enter', (payload) => {
+    localStorage.setItem('ledgers-enter', JSON.stringify(payload));
+    return payload;
+});
+state.handle('ledgers-save', (payload) => {
+    localStorage.removeItem('ledgers-enter');
+    return payload;
+});
 
 // Define all pages and load the main page. The ID defined here is globally used for:
 //  - handling navigation by href or value (see above)
