@@ -9,7 +9,8 @@
         "dscheinah/sx-js": "^1.0",
         "mnsami/composer-custom-directory-installer": "^2.0",
         "dscheinah/sx-data": "^1.0",
-        "tecnickcom/tc-lib-pdf": "^8.15"
+        "tecnickcom/tc-lib-pdf": "^8.15",
+        "maennchen/zipstream-php": "^3.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.5",
