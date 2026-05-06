@@ -7,18 +7,18 @@
             werden nur zugeordnete und nicht stornierte Buchungen berücksichtigt.
         </p>
     </details>
-    <form id="reports-categories">
+    <form id="reports-categories" action="/report/category" method="get">
         <div class="sx-multi">
             <div class="sx-input">
                 <input type="date" id="reports-categories-start" name="start" required/>
                 <label for="reports-categories-start">Startdatum</label>
             </div>
             <div class="sx-input">
-                <input type="date" id="reports-categories-end" name="start" required/>
+                <input type="date" id="reports-categories-end" name="end" required/>
                 <label for="reports-categories-end">Enddatum</label>
             </div>
         </div>
-        <select id="reports-categories-categories" name="categories" multiple required></select>
+        <select id="reports-categories-categories" name="categories[]" multiple required></select>
         <label for="reports-categories-categories">Kategorien</label>
         <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
     </form>
@@ -27,7 +27,7 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
-    page.register('reports-categories', ({render, show, action, listen}) => {
+    page.register('reports-categories', ({render, show, listen}) => {
         let categories = [];
 
         render(() => {
@@ -40,10 +40,6 @@
         });
 
         show(() => state.dispatch('categories', null));
-
-        action('#reports-categories', 'submit', (event) => {
-            event.preventDefault();
-        });
 
         listen('categories', (data) => {
             categories = data;

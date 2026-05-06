@@ -7,18 +7,18 @@
             berücksichtigt, die einem Beleg oder einer Rechnung zugeordnet sind und nicht storniert wurden.
         </p>
     </details>
-    <form id="reports-accounts">
+    <form id="reports-accounts" action="/report/account" method="get">
         <div class="sx-multi">
             <div class="sx-input">
                 <input type="date" id="reports-accounts-start" name="start" required/>
                 <label for="reports-accounts-start">Startdatum</label>
             </div>
             <div class="sx-input">
-                <input type="date" id="reports-accounts-end" name="start" required/>
+                <input type="date" id="reports-accounts-end" name="end" required/>
                 <label for="reports-accounts-end">Enddatum</label>
             </div>
         </div>
-        <select id="reports-accounts-accounts" name="accounts" multiple required></select>
+        <select id="reports-accounts-accounts" name="accounts[]" multiple required></select>
         <label for="reports-accounts-accounts">Konten</label>
         <button type="submit"><span class="sx-button-icon">⚙</span> Bericht erstellen</button>
     </form>
@@ -27,7 +27,7 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
-    page.register('reports-accounts', ({render, show, action, listen}) => {
+    page.register('reports-accounts', ({render, show, listen}) => {
         let accounts = state.get('accounts') || [];
 
         render(() => {
@@ -40,10 +40,6 @@
         });
 
         show(() => state.dispatch('accounts', null));
-
-        action('#reports-accounts', 'submit', (event) => {
-           event.preventDefault();
-        });
 
         listen('accounts', (data) => accounts = data);
     });

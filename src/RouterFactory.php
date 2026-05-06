@@ -27,6 +27,8 @@ use App\Handler\ListHandler;
 use App\Handler\Master\MasterLoadHandler;
 use App\Handler\Master\MasterSaveHandler;
 use App\Handler\Report\DashboardHandler;
+use App\Handler\Report\ReportPdfHandler;
+use App\Handler\Report\ReportZipHandler;
 use Sx\Application\Middleware\UploadedFilesMiddleware;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
@@ -88,6 +90,12 @@ class RouterFactory implements FactoryInterface
 
         $router->get($prefix . 'master/load', MasterLoadHandler::class);
         $router->post($prefix . 'master/save', MasterSaveHandler::class);
+
+        $router->get($prefix . 'report/account', ReportPdfHandler::class);
+        $router->get($prefix . 'report/attachment', ReportZipHandler::class);
+        $router->get($prefix . 'report/cancellation', ReportPdfHandler::class);
+        $router->get($prefix . 'report/category', ReportPdfHandler::class);
+        $router->get($prefix . 'report/problem', ReportPdfHandler::class);
 
         return $router;
     }

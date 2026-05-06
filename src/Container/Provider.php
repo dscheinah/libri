@@ -36,6 +36,10 @@ use App\Handler\Master\MasterLoadHandler;
 use App\Handler\Master\MasterSaveHandler;
 use App\Handler\Report\DashboardHandler;
 use App\Handler\Report\DashboardHandlerFactory;
+use App\Handler\Report\ReportPdfHandler;
+use App\Handler\Report\ReportPdfHandlerFactory;
+use App\Handler\Report\ReportZipHandler;
+use App\Handler\Report\ReportZipHandlerFactory;
 use App\Repository\AccountRepository;
 use App\Repository\AccountRepositoryFactory;
 use App\Repository\CategoryRepository;
@@ -123,6 +127,9 @@ class Provider implements ProviderInterface
 
         $injector->set(MasterLoadHandler::class, MasterHandlerFactory::class);
         $injector->set(MasterSaveHandler::class, MasterHandlerFactory::class);
+
+        $injector->set(ReportPdfHandler::class, ReportPdfHandlerFactory::class);
+        $injector->set(ReportZipHandler::class, ReportZipHandlerFactory::class);
 
         $injector->set(AccountRepository::class, AccountRepositoryFactory::class);
         $injector->set(CategoryRepository::class, CategoryRepositoryFactory::class);
