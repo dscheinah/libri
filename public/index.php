@@ -6,6 +6,8 @@ use Sx\Message\ServerRequestFactory;
 use Sx\Message\UriFactory;
 use Sx\Server\ApplicationInterface;
 
+define('K_PATH_FONTS', dirname(__DIR__) . '/vendor/tecnickcom/tc-lib-pdf-font/target/fonts');
+
 $baseDirectory = dirname(__DIR__);
 // Activate composer auto-loading.
 require $baseDirectory . '/vendor/autoload.php';
