@@ -23,6 +23,11 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
  && echo "ServerTokens Prod" >> /etc/apache2/apache2.conf \
  && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 RUN docker-php-ext-install mysqli
+RUN docker-php-ext-install bcmath
+RUN apt-get update && apt-get install -y libfreetype-dev libjpeg62-turbo-dev libpng-dev \
+ && docker-php-ext-configure gd --with-freetype --with-jpeg \
+ && docker-php-ext-install -j$(nproc) gd \
+ && apt-get purge -y libfreetype-dev libjpeg62-turbo-dev libpng-dev
 # Add the complete PHP sources.
 ADD ./src /var/www/html/src
 # Also use the default configuration. This already uses getenv to be compatible with docker.

@@ -8,7 +8,8 @@
         "dscheinah/sx-css": "^1.0",
         "dscheinah/sx-js": "^1.0",
         "mnsami/composer-custom-directory-installer": "^2.0",
-        "dscheinah/sx-data": "^1.0"
+        "dscheinah/sx-data": "^1.0",
+        "tecnickcom/tc-lib-pdf": "^8.15"
     },
     "require-dev": {
         "phpunit/phpunit": "^12.5",
@@ -35,7 +36,16 @@
     },
     "scripts": {
         "test": "phpunit -c test/phpunit.xml --colors=always",
-        "test-coverage": "phpunit -c test/phpunit.xml --colors=always --coverage-clover test/clover.xml"
+        "test-coverage": "phpunit -c test/phpunit.xml --colors=always --coverage-clover test/clover.xml",
+        "tc-lib-pdf-fonts": [
+            "[ -d vendor/tecnickcom/tc-lib-pdf-font ] && make -C vendor/tecnickcom/tc-lib-pdf-font deps fonts || true"
+        ],
+        "post-install-cmd": [
+            "@tc-lib-pdf-fonts"
+        ],
+        "post-update-cmd": [
+            "@tc-lib-pdf-fonts"
+        ]
     },
     "config": {
         "allow-plugins": {
