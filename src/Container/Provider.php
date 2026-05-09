@@ -36,10 +36,12 @@ use App\Handler\Master\MasterLoadHandler;
 use App\Handler\Master\MasterSaveHandler;
 use App\Handler\Report\DashboardHandler;
 use App\Handler\Report\DashboardHandlerFactory;
-use App\Handler\Report\ReportPdfHandler;
-use App\Handler\Report\ReportPdfHandlerFactory;
-use App\Handler\Report\ReportZipHandler;
-use App\Handler\Report\ReportZipHandlerFactory;
+use App\Handler\Report\ReportAccountHandler;
+use App\Handler\Report\ReportCancellationHandler;
+use App\Handler\Report\ReportCategoryHandler;
+use App\Handler\Report\ReportHandlerFactory;
+use App\Handler\Report\ReportAttachmentHandler;
+use App\Handler\Report\ReportProblemHandler;
 use App\Repository\AccountRepository;
 use App\Repository\AccountRepositoryFactory;
 use App\Repository\CategoryRepository;
@@ -54,6 +56,8 @@ use App\Repository\LedgerRepository;
 use App\Repository\LedgerRepositoryFactory;
 use App\Repository\MasterRepository;
 use App\Repository\MasterRepositoryFactory;
+use App\Repository\ReportRepository;
+use App\Repository\ReportRepositoryFactory;
 use App\RouterFactory;
 use App\Storage\AccountStorage;
 use App\Storage\AssignmentStorage;
@@ -128,8 +132,11 @@ class Provider implements ProviderInterface
         $injector->set(MasterLoadHandler::class, MasterHandlerFactory::class);
         $injector->set(MasterSaveHandler::class, MasterHandlerFactory::class);
 
-        $injector->set(ReportPdfHandler::class, ReportPdfHandlerFactory::class);
-        $injector->set(ReportZipHandler::class, ReportZipHandlerFactory::class);
+        $injector->set(ReportAccountHandler::class, ReportHandlerFactory::class);
+        $injector->set(ReportAttachmentHandler::class, ReportHandlerFactory::class);
+        $injector->set(ReportCancellationHandler::class, ReportHandlerFactory::class);
+        $injector->set(ReportCategoryHandler::class, ReportHandlerFactory::class);
+        $injector->set(ReportProblemHandler::class, ReportHandlerFactory::class);
 
         $injector->set(AccountRepository::class, AccountRepositoryFactory::class);
         $injector->set(CategoryRepository::class, CategoryRepositoryFactory::class);
@@ -138,6 +145,7 @@ class Provider implements ProviderInterface
         $injector->set(InvoiceRepository::class, InvoiceRepositoryFactory::class);
         $injector->set(LedgerRepository::class, LedgerRepositoryFactory::class);
         $injector->set(MasterRepository::class, MasterRepositoryFactory::class);
+        $injector->set(ReportRepository::class, ReportRepositoryFactory::class);
 
         $injector->set(AccountStorage::class, StorageFactory::class);
         $injector->set(AssignmentStorage::class, StorageFactory::class);
