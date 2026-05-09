@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Storage\AccountStorage;
 use App\Storage\AssignmentStorage;
 use App\Storage\LedgerStorage;
 use DomainException;
@@ -11,6 +12,7 @@ class LedgerRepository
     public function __construct(
         private readonly LedgerStorage $storage,
         private readonly AssignmentStorage $assignmentStorage,
+        private readonly AccountStorage $accountStorage,
     ) {
     }
 
@@ -124,6 +126,17 @@ class LedgerRepository
                         $descriptions[$index],
                         $references[$index],
                     );
+                    if ($this->accountStorage->fetchOneReal($offsets[$index])) {
+                        $id = $this->storage->create(
+                            $dates[$index],
+                            $offsets[$index],
+                            $accounts[$index],
+                            -1.0 * (float) $amounts[$index],
+                            $descriptions[$index],
+                            $references[$index],
+                        );
+                        $this->assignmentStorage->markLedgerClosed($id);
+                    }
                 }
                 return true;
             }

@@ -103,18 +103,19 @@ class LedgerStorage extends Storage
         float $amount,
         string $description,
         string $reference,
-    ): void {
+    ): int {
         $latest = $this->fetch('SELECT MAX(`id`) AS `id` FROM `ledgers` FOR UPDATE')->current();
         if ($latest) {
             assert(is_array($latest));
-            $id = $latest['id'];
+            $id = $latest['id'] + 1;
         } else {
-            $id = 0;
+            $id = 1;
         }
         $this->execute(
             'INSERT INTO `ledgers` (`id`, `date`, `account_no`, `offset_no`, `amount`, `description`, `reference`) 
             VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$id + 1, $date, $accountNo, $offsetNo, $amount, $description, $reference]
+            [$id, $date, $accountNo, $offsetNo, $amount, $description, $reference]
         );
+        return $id;
     }
 }

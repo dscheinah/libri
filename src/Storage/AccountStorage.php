@@ -17,6 +17,22 @@ class AccountStorage extends Storage
         return $this->fetch('SELECT * FROM `accounts` WHERE `real` = true ORDER BY `no`');
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function fetchOneReal(string $no): ?array
+    {
+        $account = $this->fetch(
+            'SELECT * FROM `accounts` WHERE `real` = true AND `no` = ?',
+            [$no]
+        )->current();
+        if ($account) {
+            assert(is_array($account));
+            return $account;
+        }
+        return null;
+    }
+
     public function upsert(string $no, string $name, ?int $categoryId, bool $real): void
     {
         $this->execute(

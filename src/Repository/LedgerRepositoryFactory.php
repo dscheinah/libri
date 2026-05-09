@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Storage\AccountStorage;
 use App\Storage\AssignmentStorage;
 use App\Storage\LedgerStorage;
 use Sx\Container\FactoryInterface;
@@ -18,9 +19,12 @@ class LedgerRepositoryFactory implements FactoryInterface
         assert($storage instanceof LedgerStorage);
         $assignmentStorage = $injector->get(AssignmentStorage::class);
         assert($assignmentStorage instanceof AssignmentStorage);
+        $accountStorage = $injector->get(AccountStorage::class);
+        assert($accountStorage instanceof AccountStorage);
         return new LedgerRepository(
             $storage,
             $assignmentStorage,
+            $accountStorage,
         );
     }
 }
