@@ -40,6 +40,7 @@ class LedgerRepository
                 'assigned' => (bool) $ledger['closed'],
                 'reference' => $ledger['reference'],
                 'canceled' => (bool) $ledger['canceled'],
+                'transfer' => (bool) $ledger['transfer'],
             ];
         }
         return $ledgers;
@@ -90,6 +91,7 @@ class LedgerRepository
             'invoices' => iterator_to_array($this->assignmentStorage->fetchAssignedInvoicesForLedger($id)),
             'reference' => $ledger['reference'],
             'canceled' => (bool) $ledger['canceled'],
+            'transfer' => (bool) $ledger['transfer'],
         ];
     }
 
@@ -127,7 +129,7 @@ class LedgerRepository
                         $references[$index],
                     );
                     if ($this->accountStorage->fetchOneReal($offsets[$index])) {
-                        $id = $this->storage->create(
+                        $this->storage->createTransfer(
                             $dates[$index],
                             $offsets[$index],
                             $accounts[$index],
@@ -135,7 +137,6 @@ class LedgerRepository
                             $descriptions[$index],
                             $references[$index],
                         );
-                        $this->assignmentStorage->markLedgerClosed($id);
                     }
                 }
                 return true;

@@ -109,7 +109,7 @@
 `;
                 if (item.canceled) {
                     tr.classList.add('canceled');
-                } else if (!item.assigned) {
+                } else if (!item.assigned && !item.transfer) {
                     tr.classList.add('sx-highlight');
                 }
                 return tr;

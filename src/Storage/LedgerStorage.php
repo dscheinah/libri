@@ -28,7 +28,7 @@ class LedgerStorage extends Storage
     public function countUnassigned(): int
     {
         $result = $this->fetch(
-            'SELECT COUNT(*) AS `count` FROM `ledgers` WHERE `closed` = false'
+            'SELECT COUNT(*) AS `count` FROM `ledgers` WHERE `closed` = false AND `transfer` = false'
         )->current();
         if ($result) {
             assert(is_array($result));
@@ -53,7 +53,8 @@ class LedgerStorage extends Storage
                     l.`amount`,
                     l.`closed`, 
                     l.`reference`, 
-                    l.`canceled` 
+                    l.`canceled`,
+                    l.`transfer`
                 FROM `ledgers` l
                     LEFT JOIN `accounts` a ON a.`no` = l.`account_no`
                     LEFT JOIN `accounts` o ON o.`no` = l.`offset_no`
@@ -67,7 +68,7 @@ class LedgerStorage extends Storage
     {
         return $this->fetch(
             'SELECT `id`, `date`, `description`, `amount`, `reference` FROM `ledgers` 
-                WHERE `closed` = false AND `canceled` = false'
+                WHERE `closed` = false AND `canceled` = false AND `transfer` = false'
         );
     }
 
@@ -104,18 +105,39 @@ class LedgerStorage extends Storage
         string $description,
         string $reference,
     ): int {
-        $latest = $this->fetch('SELECT MAX(`id`) AS `id` FROM `ledgers` FOR UPDATE')->current();
-        if ($latest) {
-            assert(is_array($latest));
-            $id = $latest['id'] + 1;
-        } else {
-            $id = 1;
-        }
+        $id = $this->getNextInsertId();
         $this->execute(
             'INSERT INTO `ledgers` (`id`, `date`, `account_no`, `offset_no`, `amount`, `description`, `reference`) 
             VALUES (?, ?, ?, ?, ?, ?, ?)',
             [$id, $date, $accountNo, $offsetNo, $amount, $description, $reference]
         );
         return $id;
+    }
+
+    public function createTransfer(
+        string $date,
+        string $accountNo,
+        string $offsetNo,
+        float $amount,
+        string $description,
+        string $reference,
+    ): int {
+        $id = $this->getNextInsertId();
+        $this->execute(
+            'INSERT INTO `ledgers` (`id`, `date`, `account_no`, `offset_no`, `amount`, `description`, `reference`, `transfer`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, true)',
+            [$id, $date, $accountNo, $offsetNo, $amount, $description, $reference]
+        );
+        return $id;
+    }
+
+    private function getNextInsertId(): int
+    {
+        $latest = $this->fetch('SELECT MAX(`id`) AS `id` FROM `ledgers` FOR UPDATE')->current();
+        if ($latest) {
+            assert(is_array($latest));
+            return $latest['id'] + 1;
+        }
+        return 1;
     }
 }

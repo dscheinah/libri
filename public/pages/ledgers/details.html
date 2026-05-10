@@ -9,7 +9,7 @@
         </p>
     </details>
     <table id="ledgers-details">
-        <tr>
+        <tr id="ledgers-details-assignment" hidden>
             <th>Zuordnung</th>
             <td>
                 <span id="ledgers-details-assignable" class="sx-highlight">offen</span>
@@ -20,6 +20,9 @@
                     <span class="sx-button-icon">➾</span> zuordnen
                 </button>
             </td>
+        </tr>
+        <tr id="ledgers-details-transfer" hidden>
+            <th colspan="2">Umbuchung</th>
         </tr>
         <tr>
             <th>Nummer</th>
@@ -70,6 +73,8 @@
                 li.innerHTML = `<button value="${invoice.id}" data-invoice>${invoice.description}</button>`;
                 return li;
             });
+            helper.set('#ledgers-details-assignment', 'hidden', data.transfer);
+            helper.set('#ledgers-details-transfer', 'hidden', !data.transfer);
             helper.style('#ledgers-details-assigned', 'display', data.invoices.length ? '' : 'none');
             helper.style('#ledgers-details-assignable', 'display', data.assigned ? 'none' : '');
             helper.style('#ledgers-details-assign', 'display', data.assigned ? 'none' : '');

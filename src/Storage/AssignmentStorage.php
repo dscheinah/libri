@@ -14,7 +14,7 @@ class AssignmentStorage extends Storage
     {
         $ledger = $this->fetch(
             'SELECT `id`, `amount` FROM `ledgers` 
-                WHERE `id` = ? AND `canceled` = false AND `closed` = false
+                WHERE `id` = ? AND `canceled` = false AND `closed` = false AND `transfer` = false
                 FOR UPDATE',
             [$id]
         )->current();

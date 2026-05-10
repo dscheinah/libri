@@ -1,0 +1,1 @@
+ALTER TABLE `ledgers` ADD `transfer` BOOL DEFAULT FALSE;
