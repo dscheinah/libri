@@ -86,6 +86,7 @@
             helper.set('#ledgers-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
             helper.set('#ledgers-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
             helper.set('#ledgers-details-reference', 'innerHTML', data.reference || '');
+            helper.style('#ledgers-details-cancel', 'display', data.assigned || data.canceled ? 'none' : '');
         });
 
         action('#ledgers-details [data-invoice]', 'click', (event, target) => {

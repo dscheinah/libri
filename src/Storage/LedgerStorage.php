@@ -94,7 +94,7 @@ class LedgerStorage extends Storage
 
     public function updateCanceled(int $id, string $reason): void
     {
-        $this->execute('UPDATE `ledgers` SET `canceled` = true, `canceled_reason` = ? WHERE `id` = ?', [$reason, $id]);
+        $this->execute('UPDATE `ledgers` SET `canceled` = true, `canceled_reason` = ? WHERE `id` = ? AND `closed` = false', [$reason, $id]);
     }
 
     public function create(
