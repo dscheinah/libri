@@ -28,7 +28,7 @@ class LedgerStorage extends Storage
     public function countUnassigned(): int
     {
         $result = $this->fetch(
-            'SELECT COUNT(*) AS `count` FROM `ledgers` WHERE `closed` = false AND `transfer` = false'
+            'SELECT COUNT(*) AS `count` FROM `ledgers` WHERE `canceled` = false AND  `closed` = false AND `transfer` = false'
         )->current();
         if ($result) {
             assert(is_array($result));
