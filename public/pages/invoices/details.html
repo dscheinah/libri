@@ -139,7 +139,7 @@
                 helper.set(
                     '#invoices-details-contact-address',
                     'innerHTML',
-                    data.contact.address.replaceAll("\n", '<br/>')
+                    data.contact.address?.replaceAll("\n", '<br/>') || ''
                 );
                 if (data.contact.id) {
                     helper.set('#invoices-details-contact-id', 'value', data.contact.id);

@@ -66,7 +66,7 @@
         let contacts = state.get('contacts') || [];
 
         render(() => {
-            helper.list('#invoices-edit-contact-id', contacts, (contact) => {
+            helper.list('#invoices-edit-contact-id', [{}, ...contacts], (contact) => {
                 const option = helper.create('option');
                 option.value = contact.id;
                 option.innerHTML = [contact.name, contact.mail, contact.phone].filter(v => v).join(', ');
@@ -83,8 +83,8 @@
                         helper.style('#invoices-edit-document', 'display', 'none');
                         break;
                 }
-                helper.set('#invoices-edit-contact-id', 'value', data.contact ? data.contact.id : '');
-                helper.set('#invoices-edit-contact-address', 'value', data.contact ? data.contact.address : '');
+                helper.set('#invoices-edit-contact-id', 'value', data.contact?.id || '');
+                helper.set('#invoices-edit-contact-address', 'value', data.contact?.address || '');
                 helper.style('#invoices-edit-type', 'display', 'none');
             } else {
                 switch (type) {
@@ -96,8 +96,8 @@
                         break;
                 }
                 helper.set('#invoices-edit h1', 'innerHTML', 'Beleg oder Rechnung erstellen');
-                helper.set('#invoices-edit-contact-id', 'value', contact ? contact.id : '');
-                helper.set('#invoices-edit-contact-address', 'value', contact ? contact.address : '');
+                helper.set('#invoices-edit-contact-id', 'value', data.contact?.id || '');
+                helper.set('#invoices-edit-contact-address', 'value', data.contact?.address || '');
                 helper.element('#invoices-edit').type.value = type;
                 helper.style('#invoices-edit-type', 'display', '');
             }

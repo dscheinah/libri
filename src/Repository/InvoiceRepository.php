@@ -102,7 +102,7 @@ class InvoiceRepository
      */
     public function saveInvoice(array $data, ?UploadedFileInterface $document = null): bool
     {
-        $contactId = isset($data['contact_id']) ? (int)$data['contact_id'] : null;
+        $contactId = ((int) ($data['contact_id'] ?? 0)) ?: null;
 
         if ($data['id'] ?? null) {
             $id = (int) $data['id'];
