@@ -140,4 +140,150 @@ class LedgerStorage extends Storage
         }
         return 1;
     }
+
+    public function fetchAmountBeforeDateByAccount(string $account, string $date): float
+    {
+        $amount = $this->fetch(
+            'SELECT SUM(`amount`)
+                FROM `ledgers`
+                WHERE (`account_no` = ? OR `offset_no` = ?) AND `date` < ? AND `canceled` = false',
+            [$account, $account, $date]
+        )->current();
+        assert(is_array($amount));
+        return $amount['amount'] ?? 0;
+    }
+
+    public function fetchAmountAtDateByAccount(string $account, string $date): float
+    {
+        $amount = $this->fetch(
+            'SELECT SUM(`amount`) AS `amount`
+                FROM `ledgers`
+                WHERE (`account_no` = ? OR `offset_no` = ?) AND `date` <= ? AND `canceled` = false',
+            [$account, $account, $date]
+        )->current();
+        assert(is_array($amount));
+        return $amount['amount'] ?? 0;
+    }
+
+    /**
+     * @return array<string, float|null>
+     */
+    public function fetchSummaryByAccount(string $account, string $start, string $end): array
+    {
+        $summary = $this->fetch(
+            'SELECT 
+                    SUM(IF(`amount` > 0, `amount`, 0)) AS `income`,
+                    SUM(IF(`amount` < 0, `amount`, 0)) AS `expense`,
+                    SUM(`amount`) AS `total`
+                FROM `ledgers` 
+                WHERE (`account_no` = ? OR `offset_no` = ?) AND `date` BETWEEN ? AND ? AND `closed` = true AND `canceled` = false',
+            [$account, $account, $start, $end],
+        )->current();
+        assert(is_array($summary));
+        return $summary;
+    }
+
+    public function fetchForReportByAccount(string $account, string $start, string $end): Generator
+    {
+        return $this->fetch(
+            'SELECT 
+                    `id`,
+                    `date`,
+                    `offset_no`,
+                    `description`,
+                    `amount`,
+                    `reference`
+                FROM `ledgers`
+                WHERE (`account_no` = ? OR `offset_no` = ?) AND `date` BETWEEN ? AND ? AND `closed` = true AND `canceled` = false',
+            [$account, $account, $start, $end]
+        );
+    }
+
+    public function fetchAmountBeforeDateByCategory(int $category, string $date): float
+    {
+        $amount = $this->fetch(
+            'SELECT SUM(l.`amount`) AS `amount` 
+                FROM `ledgers` l INNER JOIN `accounts` a ON a.`no` = l.`offset_no` 
+                WHERE a.`category_id` = ? AND `date` < ? AND `canceled` = false',
+            [$category, $date]
+        )->current();
+        assert(is_array($amount));
+        return $amount['amount'] ?? 0;
+    }
+
+    public function fetchAmountAtDateByCategory(int $category, string $date): float
+    {
+        $amount = $this->fetch(
+            'SELECT SUM(l.`amount`) AS `amount`
+                FROM `ledgers` l INNER JOIN `accounts` a ON a.`no` = l.`offset_no`
+                WHERE a.`category_id` = ? AND `date` <= ? AND `canceled` = false',
+            [$category, $date]
+        )->current();
+        assert(is_array($amount));
+        return $amount['amount'] ?? 0;
+    }
+
+    /**
+     * @return array<string, float|null>
+     */
+    public function fetchSummaryByCategory(int $category, string $start, string $end): array
+    {
+        $summary = $this->fetch(
+            'SELECT 
+                    SUM(IF(l.`amount` > 0, l.`amount`, 0)) AS `income`,
+                    SUM(IF(l.`amount` < 0, l.`amount`, 0)) AS `expense`,
+                    SUM(l.`amount`) AS `total`
+                FROM `ledgers` l INNER JOIN `accounts` a ON a.`no` = l.`offset_no`
+                WHERE a.`category_id` = ? AND `date` BETWEEN ? AND ? AND `closed` = true AND `canceled` = false',
+            [$category, $start, $end],
+        )->current();
+        assert(is_array($summary));
+        return $summary;
+    }
+
+    public function fetchForReportByCategory(int $category, string $start, string $end): Generator
+    {
+        return $this->fetch(
+            'SELECT 
+                    l.`id`,
+                    l.`date`,
+                    l.`offset_no`,
+                    l.`description`,
+                    l.`amount`,
+                    l.`reference`
+                FROM `ledgers` l INNER JOIN `accounts` a ON a.`no` = l.`offset_no`
+                WHERE a.`category_id` = ? AND `date` BETWEEN ? AND ? AND `closed` = true AND `canceled` = false',
+            [$category, $start, $end]
+        );
+    }
+
+    public function fetchCanceled(string $start, string $end): Generator
+    {
+        return $this->fetch(
+            'SELECT 
+                    `id`,
+                    `date`,
+                    `account_no`,
+                    `amount`,
+                    `canceled_reason` 
+                FROM `ledgers`
+                WHERE `date` BETWEEN ? AND ? AND `canceled` = true',
+            [$start, $end]
+        );
+    }
+
+    public function fetchUnassigned(): Generator
+    {
+        return $this->fetch(
+            'SELECT 
+                    `id`,
+                    `date`,
+                    `account_no`,
+                    `description`,
+                    `amount`,
+                    `reference`
+                FROM `ledgers`
+                WHERE `canceled` = false AND  `closed` = false AND `transfer` = false',
+        );
+    }
 }

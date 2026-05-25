@@ -20,6 +20,22 @@ class AccountStorage extends Storage
     /**
      * @return array<string, mixed>|null
      */
+    public function fetchOne(string $no): ?array
+    {
+        $account = $this->fetch(
+            'SELECT * FROM `accounts` WHERE `no` = ?',
+            [$no]
+        )->current();
+        if ($account) {
+            assert(is_array($account));
+            return $account;
+        }
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
     public function fetchOneReal(string $no): ?array
     {
         $account = $this->fetch(

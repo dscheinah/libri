@@ -140,4 +140,50 @@ class InvoiceStorage extends Storage
             [$name, $content, $id]
         );
     }
+
+    public function fetchForReport(string $start, string $end): Generator
+    {
+        return $this->fetch('SELECT 
+                    `id`,
+                    `date`,
+                    `description`,
+                    `reference`,
+                    `amount`,
+                    `no_document`, 
+                    `document_name`,
+                    `document`
+                FROM `invoices` WHERE `date` BETWEEN ? AND ?',
+            [$start, $end]
+        );
+    }
+
+    public function fetchUnassigned(): Generator
+    {
+        return $this->fetch('SELECT 
+                    `id`,
+                    `date`,
+                    `description`,
+                    `reference`,
+                    `amount`,
+                    `no_document`, 
+                    `document_name`,
+                    `document`
+                FROM `invoices` WHERE `closed` = false',
+        );
+    }
+
+    public function fetchWithoutDocument(): Generator
+    {
+        return $this->fetch('SELECT 
+                    `id`,
+                    `date`,
+                    `description`,
+                    `reference`,
+                    `amount`,
+                    `no_document`, 
+                    `document_name`,
+                    `document`
+                FROM `invoices` WHERE `document` IS NULL AND `no_document` = false AND `finished` = false',
+        );
+    }
 }

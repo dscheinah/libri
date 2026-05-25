@@ -24,4 +24,17 @@ class CategoryStorage extends Storage
     {
         $this->execute('DELETE FROM `categories` WHERE `id` > ?', [$id]);
     }
+
+    /**
+     * @return array<string, int|string>|null
+     */
+    public function fetchOne(int $id): ?array
+    {
+        $category = $this->fetch('SELECT * FROM `categories` WHERE `id` = ?', [$id])->current();
+        if ($category) {
+            assert(is_array($category));
+            return $category;
+        }
+        return null;
+    }
 }
