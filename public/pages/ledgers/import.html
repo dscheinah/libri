@@ -1,0 +1,145 @@
+<template>
+    <h1>Import</h1>
+    <details>
+        <summary>Importiere Daten aus CSV oder Excel</summary>
+        <p>
+            Füge die Daten in das Textfeld ein, konfiguriere das Trennzeichen und ordne die Spalten zu.
+            Anschließend werden die Daten in die Buchungsmaske übernommen und können dort weiter angepasst werden.
+        </p>
+    </details>
+    <form id="ledgers-import">
+        <textarea id="ledgers-import-data" name="data" rows="8"></textarea>
+        <label for="ledgers-import-data">Daten</label>
+        <input type="text" id="ledgers-import-divider" name="divider">
+        <label for="ledgers-import-divider">Trennzeichen</label>
+        <select id="ledgers-import-account" name="account"></select>
+        <label for="ledgers-import-account">Konto</label>
+        <div id="ledgers-import-parsed"></div>
+        <div class="sx-actions">
+            <button type="submit"><span class="sx-button-icon">📋︎</span> übernehmen</button>
+        </div>
+    </form>
+</template>
+
+<script type="module">
+    import {helper, page, state} from '../../js/app.js';
+
+    let data = state.get('ledgers-import') || {
+        data: '',
+        divider: ';',
+        account: null,
+        parsed: [],
+    };
+    let accounts = state.get('accounts-real') || [];
+
+    page.register('ledgers-import', ({render, action, listen}) => {
+        render(() => {
+            helper.list('#ledgers-import-account', accounts, (account) => {
+                const option = document.createElement('option');
+                option.value = account['no'] || '';
+                option.innerHTML = [account['no'], account.name].filter(v => v).join(' - ');
+                return option;
+            });
+
+            helper.set('#ledgers-import-data', 'value', data.data);
+            helper.set('#ledgers-import-divider', 'value', data.divider);
+            helper.set('#ledgers-import-account', 'value', data.account);
+
+            helper.list('#ledgers-import-parsed', data.parsed, (parsed) => {
+                const div = helper.create('div');
+                div.className = 'ledgers-import-parsed';
+                div.innerHTML = `
+                    <select aria-label="Spaltenzuordnung" name="parsed[]">
+                        <option></option>
+                        <option value="date">Datum</option>
+                        <option value="amount">Betrag</option>
+                        <option value="description">Beschreibung</option>
+                        <option value="reference">Referenz</option>
+                    </select>
+                    <div>${parsed.join('; ')}</div>
+                `;
+                return div;
+            });
+        });
+
+        action('#ledgers-import', 'change', (event, target) => {
+            const parsed = [];
+
+            target.elements.data.value.split("\n").forEach((line) => {
+                line.split(target.elements.divider.value).forEach((value, index) => {
+                    if (!parsed[index]) {
+                        parsed[index] = [];
+                    }
+                    parsed[index].push(value);
+                })
+            });
+
+            state.dispatch('ledgers-import', {
+                data: target.elements.data.value,
+                divider: target.elements.divider.value,
+                account: target.elements.account.value,
+                parsed,
+            });
+        });
+        action('#ledgers-import', 'submit', (event, target) => {
+            event.preventDefault();
+
+            const formData = new FormData(target);
+            const parsed = formData.getAll('parsed[]');
+
+            const length = Math.max(...data.parsed.map(entry => entry.length));
+            const enter = {
+                length: length,
+                account: Array(length).fill(data.account),
+            };
+            data.parsed.forEach((values, index) => {
+                if (!parsed[index]) {
+                    return;
+                }
+                switch (parsed[index]) {
+                    case 'date':
+                        values = values.map((value) => {
+                            const ts = Date.parse(value) || Date.parse(value.replace(/(\d+)\.(\d+)\.(\d+)/, '$3-$2-$1'));
+                            return ts ? new Date(ts).toISOString().substring(0, 10) : value;
+                        });
+                        break;
+                    case 'amount':
+                        values = values.map((value) => parseFloat(value.replace(',', '.')));
+                        break;
+                }
+                enter[parsed[index]] = values;
+            });
+
+            state.dispatch('ledgers-enter', []);
+            state.dispatch('ledgers-enter', enter);
+            history.back();
+        });
+
+        listen('ledgers-import', (payload) => data = payload || {});
+        listen('accounts-real', (payload) => accounts = payload || []);
+    });
+</script>
+
+<style>
+    #ledgers-import-data {
+        overflow: scroll;
+    }
+
+    .ledgers-import-parsed {
+        display: flex;
+        gap: 1em;
+        align-items: center;
+        margin-bottom: 1em;
+    }
+
+    .ledgers-import-parsed select {
+        width: 150px;
+        flex-shrink: 0;
+    }
+
+    .ledgers-import-parsed > * {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>

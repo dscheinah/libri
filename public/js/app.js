@@ -141,6 +141,7 @@ state.handle('ledgers-save', (payload) => {
     'ledgers-assign',
     'ledgers-details',
     'ledgers-enter',
+    'ledgers-import',
     'reports-accounts',
     'reports-attachments',
     'reports-cancellations',
