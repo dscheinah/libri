@@ -10,7 +10,7 @@ class Pdf extends Tcpdf
     {
         parent::__construct();
         $this->setPDFFilename($outputName);
-        $this->font->insert($this->pon, 'helvetica', '', 12);
+        $this->font->insert($this->pon, 'helvetica', '', 10);
         $this->addPage();
     }
 
