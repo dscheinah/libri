@@ -102,6 +102,8 @@ class InvoiceRepository
      */
     public function saveInvoice(array $data, ?UploadedFileInterface $document = null): bool
     {
+        $contactId = isset($data['contact_id']) ? (int)$data['contact_id'] : null;
+
         if ($data['id'] ?? null) {
             $id = (int) $data['id'];
 
@@ -115,6 +117,7 @@ class InvoiceRepository
                     (string) ($data['description'] ?? ''),
                     (string) ($data['reference'] ?? ''),
                     (bool) ($data['no_document'] ?? false),
+                    $contactId,
                 );
             } else {
                 $this->storage->updateAll(
@@ -125,6 +128,7 @@ class InvoiceRepository
                     (string) ($data['reference'] ?? ''),
                     (bool) ($data['no_document'] ?? false),
                     (string) ($data['contact_address'] ?? ''),
+                    $contactId,
                 );
             }
         } else {
@@ -139,7 +143,7 @@ class InvoiceRepository
                 (string) ($data['reference'] ?? ''),
                 (bool) ($data['no_document'] ?? false),
                 (string) ($data['contact_address'] ?? ''),
-                isset($data['contact_id']) ? (int) $data['contact_id'] : null,
+                $contactId,
             );
         }
 

@@ -110,12 +110,13 @@ class InvoiceStorage extends Storage
         string $reference,
         bool $noDocument,
         string $contactAddress,
+        ?int $contactId,
     ): void {
         $this->execute(
             'UPDATE `invoices` SET 
-                `date` = ?, `amount` = ?, `description` = ?, `reference` = ?, `no_document` = ?, `contact_address` = ?
+                `date` = ?, `amount` = ?, `description` = ?, `reference` = ?, `no_document` = ?, `contact_address` = ?, `contact_id` = ?
                 WHERE `id` = ?',
-            [$date, $amount, $description, $reference, $noDocument, $contactAddress, $id]
+            [$date, $amount, $description, $reference, $noDocument, $contactAddress, $contactId, $id]
         );
     }
 
@@ -124,12 +125,13 @@ class InvoiceStorage extends Storage
         string $description,
         string $reference,
         bool $noDocument,
+        ?int $contactId,
     ): void {
         $this->execute(
             'UPDATE `invoices` SET 
-                `description` = ?, `reference` = ?, `no_document` = ?
+                `description` = ?, `reference` = ?, `no_document` = ?, `contact_id` = ?
                 WHERE `id` = ?',
-            [$description, $reference, $noDocument, $id]
+            [$description, $reference, $noDocument, $contactId, $id]
         );
     }
 
