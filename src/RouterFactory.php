@@ -11,6 +11,7 @@ use App\Handler\Contact\ContactListHandler;
 use App\Handler\Contact\ContactLoadHandler;
 use App\Handler\Contact\ContactRemoveHandler;
 use App\Handler\Contact\ContactSaveHandler;
+use App\Handler\Invoice\InvoiceFinishHandler;
 use App\Handler\Invoice\InvoiceListAssignableHandler;
 use App\Handler\Invoice\InvoiceListHandler;
 use App\Handler\Invoice\InvoiceLoadHandler;
@@ -82,6 +83,7 @@ class RouterFactory implements FactoryInterface
         $router->post($prefix . 'invoice/save', UploadedFilesMiddleware::class);
         $router->post($prefix . 'invoice/save', InvoiceSaveHandler::class);
         $router->post($prefix . 'invoice/save-assign', InvoiceSaveAssignHandler::class);
+        $router->put($prefix . 'invoice/finish', InvoiceFinishHandler::class);
         $router->delete($prefix . 'invoice/remove', InvoiceRemoveHandler::class);
 
         $router->get($prefix . 'ledger/list', LedgerListHandler::class);

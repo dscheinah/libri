@@ -21,6 +21,12 @@ export async function save(data) {
     return fetchBackend('/invoice/save', {method: 'POST', body: data});
 }
 
+export async function finish(id) {
+    const params = new URLSearchParams();
+    params.set('id', id);
+    return fetchBackend('/invoice/finish?' + params.toString(), {method: 'PUT'});
+}
+
 export async function remove(id) {
     const params = new URLSearchParams();
     params.set('id', id);

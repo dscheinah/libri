@@ -15,6 +15,7 @@ use App\Handler\Contact\ContactListHandler;
 use App\Handler\Contact\ContactLoadHandler;
 use App\Handler\Contact\ContactRemoveHandler;
 use App\Handler\Contact\ContactSaveHandler;
+use App\Handler\Invoice\InvoiceFinishHandler;
 use App\Handler\Invoice\InvoiceHandlerFactory;
 use App\Handler\Invoice\InvoiceListAssignableHandler;
 use App\Handler\Invoice\InvoiceListHandler;
@@ -115,6 +116,7 @@ class Provider implements ProviderInterface
         $injector->set(ContactRemoveHandler::class, ContactHandlerFactory::class);
         $injector->set(ContactSaveHandler::class, ContactHandlerFactory::class);
 
+        $injector->set(InvoiceFinishHandler::class, InvoiceHandlerFactory::class);
         $injector->set(InvoiceListAssignableHandler::class, InvoiceHandlerFactory::class);
         $injector->set(InvoiceListHandler::class, InvoiceHandlerFactory::class);
         $injector->set(InvoiceLoadHandler::class, InvoiceHandlerFactory::class);

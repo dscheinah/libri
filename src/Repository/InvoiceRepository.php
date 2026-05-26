@@ -2,8 +2,10 @@
 
 namespace App\Repository;
 
+use App\Helper\Pdf;
 use App\Storage\AssignmentStorage;
 use App\Storage\InvoiceStorage;
+use App\Storage\MasterStorage;
 use DomainException;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -12,6 +14,7 @@ class InvoiceRepository
     public function __construct(
         private readonly InvoiceStorage $storage,
         private readonly AssignmentStorage $assignmentStorage,
+        private readonly MasterStorage $masterStorage,
     ) {
     }
 
@@ -90,6 +93,100 @@ class InvoiceRepository
             'contact' => $contact ?: null,
             'finished' => (bool) $invoice['finished'],
         ];
+    }
+
+    public function finishInvoice(int $id): bool
+    {
+        $invoice = $this->storage->fetchOpenInvoice($id);
+        if (!$invoice) {
+            return false;
+        }
+
+        $master = array_column(iterator_to_array($this->masterStorage->fetchAllValues()), 'value', 'key');
+
+        $addressShort = str_replace("\n", ' - ', trim($master['address'] ?? ''));
+
+        $address = str_replace("\n", '<br>', trim($master['address'] ?? ''));
+        $account = str_replace("\n", '<br>', trim($master['account'] ?? ''));
+
+        $contactAddress = str_replace("\n", '<br>', trim((string) $invoice['contact_address']));
+        $timestamp = strtotime((string) $invoice['date']) ?: null;
+        $amount = number_format((float) $invoice['amount'], 2, ',', '.');
+
+        $replacements = [
+            '#nummer#' => $invoice['id'],
+            '#jahr#' => date('Y', $timestamp),
+            '#monat#' => date('m', $timestamp),
+            '#tag#' => date('d', $timestamp),
+            '#checksum#' => 100 - ((int) $invoice['id'] % 100),
+            '##' => '#',
+        ];
+        $number = str_replace(array_keys($replacements), $replacements, $master['number'] ?? '#nummer#');
+
+        $file = "$number.pdf";
+
+        $pdf = new Pdf($file);
+        $pdf->addHTMLCell(
+            "
+                <style>
+                    small {
+                        color: gray;
+                    }
+                </style>
+                <small>$addressShort</small>
+            ",
+            25, 45, 80, 11.7
+        );
+        $pdf->addHTMLCell($contactAddress, 25, 45 + 11.7, 80, 27);
+        $pdf->addHTMLCell(
+            'Datum: ' . date('d.m.Y', $timestamp),
+            125, 50 + 45 - 4, 75, 4,
+        );
+        $pdf->addHTMLCell(
+        "
+                <style>
+                    table {
+                        border: 1px solid lightgray;
+                    }
+                    
+                    th, td {
+                        padding: 2mm;
+                    }
+                </style>
+                <h1>Rechnung Nr. $number</h1>
+                <p>
+                    Sehr geehrte Damen und Herren,<br>
+                    <br>
+                    vielen Dank für Ihren Auftrag.<br>
+                    Hiermit stelle ich Ihnen die folgende Leistung in Rechnung:
+                </p>
+                <table>
+                    <colgroup>
+                        <col style='width: 100mm;'/>
+                        <col style='width: 65mm;'/>
+                    </colgroup>
+                    <thead>
+                        <tr><th><strong>Beschreibung</strong></th><th><strong>Betrag</strong></th></tr>                    
+                    </thead>
+                    <tbody>
+                        <tr><td>{$invoice['description']}</td><td>$amount €</td></tr>                    
+                    </tbody>
+                </table>
+                <p>
+                    Bitte überweisen Sie den Rechnungsbetrag innerhalb von 14 Tagen unter Angabe der Rechnungsnummer.<br>
+                    <br>
+                    Vielen Dank und viele Grüße
+                </p>
+            ",
+            25, 105, 210 - 25 - 20, 105,
+        );
+        $pdf->addHTMLCell("<p>$address</p>", 25, 297 - 87 + 8.46, 75, 87 - 8.46);
+        $pdf->addHTMLCell("<p>$account</p>", 25 + 75 + 15, 297 - 87 + 8.46, 75, 87 - 8.46);
+
+        $this->storage->updateReference($id, $number);
+        $this->storage->updateDocument($id, $file, $pdf->getOutPDFString());
+        $this->storage->markFinished($id);
+        return true;
     }
 
     public function removeInvoice(int $id): bool

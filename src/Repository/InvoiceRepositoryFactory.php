@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Storage\AssignmentStorage;
 use App\Storage\InvoiceStorage;
+use App\Storage\MasterStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
@@ -18,9 +19,12 @@ class InvoiceRepositoryFactory implements FactoryInterface
         assert($storage instanceof InvoiceStorage);
         $assignmentStorage = $injector->get(AssignmentStorage::class);
         assert($assignmentStorage instanceof AssignmentStorage);
+        $masterStorage = $injector->get(MasterStorage::class);
+        assert($masterStorage instanceof MasterStorage);
         return new InvoiceRepository(
             $storage,
             $assignmentStorage,
+            $masterStorage,
         );
     }
 }

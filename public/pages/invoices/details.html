@@ -96,7 +96,6 @@
                         helper.set('#invoices-details-no-document', 'className', 'sx-highlight');
                     }
                     helper.set('#invoices-details h1', 'innerHTML', 'Beleg');
-                    helper.set('#invoices-details-delete', 'disabled', data.assigned);
                     helper.style('#invoices-details-finish', 'display', 'none');
                     break;
                 case 2:
@@ -107,10 +106,11 @@
                     );
                     helper.set('#invoices-details-no-document', 'className', 'sx-highlight');
                     helper.set('#invoices-details h1', 'innerHTML', 'Rechnung');
-                    helper.set('#invoices-details-delete', 'disabled', data.finished);
                     helper.style('#invoices-details-finish', 'display', '');
                     break;
             }
+            helper.set('#invoices-details-finish', 'disabled', data.assigned || data.finished);
+            helper.set('#invoices-details-delete', 'disabled', data.assigned || data.finished);
             helper.list('#invoices-details-assigned', data.ledgers, (ledger) => {
                 const li = document.createElement('li');
                 li.innerHTML = `<button value="${ledger.id}" data-ledger>${ledger.description}</button>`;
@@ -166,7 +166,9 @@
             page.show('invoices-edit');
         });
         action('#invoices-details-finish', 'click', () => {
-            confirm('Soll die Rechnung finalisiert werden? Das kann nicht rückgängig gemacht werden.');
+            if (confirm('Soll die Rechnung finalisiert werden? Das kann nicht rückgängig gemacht werden.')) {
+                state.dispatch('invoice-finish', data.id);
+            }
         });
         action('#invoices-details-delete', 'click', () => {
             if (confirm('Soll der Beleg gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
@@ -177,6 +179,9 @@
         listen('invoice', (invoice) => data = invoice || {});
         listen('invoice-delete', () => {
             history.back();
+        });
+        listen('invoice-finish', () => {
+            state.dispatch('invoice', data.id);
         });
         listen('invoices-assign', () => {
             state.dispatch('invoice', data.id);

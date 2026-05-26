@@ -73,6 +73,7 @@ state.listen('sx-show', () => state.dispatch('loading', false));
     'invoices-assign',
     'invoice',
     'invoice-save',
+    'invoice-finish',
     'invoice-delete',
     'master',
     'master-save',
@@ -108,6 +109,7 @@ state.handle('invoices-assignable', invoice.assignable);
 state.handle('invoices-assign', invoice.assign);
 state.handle('invoice', invoice.get);
 state.handle('invoice-save', invoice.save);
+state.handle('invoice-finish', invoice.finish);
 state.handle('invoice-delete', invoice.remove);
 state.handle('master', master.get);
 state.handle('master-save', master.save);

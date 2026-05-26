@@ -76,6 +76,22 @@ class InvoiceStorage extends Storage
         return null;
     }
 
+    /**
+     * @return array<string, int|string|null|float>|null
+     */
+    public function fetchOpenInvoice(int $id): ?array
+    {
+        $invoice = $this->fetch(
+            'SELECT * FROM `invoices` WHERE `id` = ? AND `closed` = false AND `finished` = false',
+            [$id]
+        )->current();
+        if ($invoice) {
+            assert(is_array($invoice));
+            return $invoice;
+        }
+        return null;
+    }
+
     public function removeOpenInvoice(int $id): int
     {
         return $this->execute(
@@ -135,6 +151,11 @@ class InvoiceStorage extends Storage
         );
     }
 
+    public function updateReference(int $id, string $reference): void
+    {
+        $this->execute('UPDATE `invoices` SET `reference` = ? WHERE `id` = ?', [$reference, $id]);
+    }
+
     public function updateDocument(int $id, string $name, string $content): void
     {
         $this->execute(
@@ -187,5 +208,10 @@ class InvoiceStorage extends Storage
                     `document`
                 FROM `invoices` WHERE `document` IS NULL AND `no_document` = false AND `finished` = false',
         );
+    }
+
+    public function markFinished(int $id): void
+    {
+        $this->execute('UPDATE `invoices` SET `finished` = 1 WHERE `id` = ?', [$id]);
     }
 }
