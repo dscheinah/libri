@@ -62,13 +62,21 @@
 <script type="module">
     import {helper, page, state} from '../js/app.js';
 
-    const currency = {currency: 'EUR', style: 'currency'}, date = {year: '2-digit', month: '2-digit', day: '2-digit'};
+    const currency = {currency: 'EUR', style: 'currency'};
+    const date = {year: '2-digit', month: '2-digit', day: '2-digit'};
 
+    /**
+     * Ledger page initialization.
+     * Manages listing of ledger entries, account filtering via tabs, and searching.
+     */
     page.register('ledgers', ({render, show, action, listen}) => {
         let accounts = state.get('accounts-real') || [];
         let data = state.get('ledgers') || [];
         let tab = state.get('ledgers-account');
 
+        /**
+         * Triggers loading of ledger entries based on selected account and search term.
+         */
         function load() {
             const form = helper.element('#ledgers');
             state.dispatch('ledgers', {
@@ -78,6 +86,7 @@
         }
 
         render(() => {
+            // Render account filter tabs
             helper.list('#ledgers-accounts', accounts, (account) => {
                 const label = document.createElement('label');
                 label.classList.add('sx-tab');
@@ -97,6 +106,8 @@
 
                 return label;
             });
+
+            // Render the list of ledger entries
             helper.list('#ledgers-list', data, (item) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -107,6 +118,7 @@
 <td class="amount ${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
 <td><button type="button" value="${item.id}" data-details><span class="sx-button-icon">▽</span> mehr</button></td>
 `;
+                // Styling for canceled or unassigned entries
                 if (item.canceled) {
                     tr.classList.add('canceled');
                 } else if (!item.assigned && !item.transfer) {
@@ -116,23 +128,30 @@
             });
         });
 
+        // Load initial data and refresh real accounts when showing the page
         show(() => {
             state.dispatch('accounts-real', null);
             load();
         });
 
+        // Handle account tab selection
         action('#ledgers [name=account]', 'input', (event) => {
             state.dispatch('ledgers-account', event.target.checked && event.target.value);
         });
+
+        // Handle search form submission
         action('#ledgers', 'submit', (event) => {
             event.preventDefault();
             load();
         });
+
+        // Handle 'more' button click to view ledger entry details
         action('#ledgers [data-details]', 'click', (event, target) => {
             state.dispatch('ledger', target.value);
             page.show('ledgers-details');
         });
 
+        // Update local data and re-render when relevant state changes
         listen('accounts-real', (data) => accounts = data);
         listen('ledgers', (ledgers) => data = ledgers);
         listen('ledgers-account', (account) => {

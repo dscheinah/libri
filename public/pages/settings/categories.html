@@ -31,10 +31,15 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Categories settings page initialization.
+     * Manages business categories, allowing adding, editing, and deleting categories.
+     */
     page.register('settings-categories', ({render, show, action, listen}) => {
         let data = state.get('categories') || [];
 
         render(() => {
+            // Render the list of categories with delete buttons
             helper.list('#settings-categories tbody', data, (item, index) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -45,22 +50,30 @@
             });
         });
 
+        // Load categories when showing the page
         show(() => state.dispatch('categories', null));
 
+        // Handle category deletion from local state
         action('#settings-categories [data-delete]', 'click', (event, target) => {
             data.splice(parseInt(target.dataset.delete), 1);
             state.set('categories', data);
         })
+
+        // Handle adding a new empty category row to local state
         action('#settings-categories [data-add]', 'click', () => {
             data.push({});
             state.set('categories', data);
         });
+
+        // Handle form submission to save all changes
         action('#settings-categories', 'submit', (event) => {
             event.preventDefault();
             state.dispatch('categories-save', new FormData(event.target));
         });
 
+        // Listen for state changes to update local data and re-render
         listen('categories', (categories) => data = categories);
+        // Navigate back after successful save
         listen('categories-save', () => {
             state.dispatch('categories', null);
             history.back();

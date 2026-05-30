@@ -52,6 +52,10 @@
 
     const currency = {currency: 'EUR', style: 'currency'};
 
+    /**
+     * Contact details page initialization.
+     * Displays detailed information about a contact, including calculated income/expense sums.
+     */
     page.register('contacts-details', ({render, action, listen}) => {
         let data = state.get('contact') || {};
 
@@ -67,26 +71,34 @@
             helper.set('#contacts-details-expense', 'className', data.expense ? 'expense' : null);
         });
 
+        // Handle 'write invoice' button click
         action('#contacts-details [data-invoice]', 'click', () => {
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-type', 2);
             state.dispatch('invoice-contact', {id: data.id, address: data.address || data.name});
             page.show('invoices-edit');
         });
+
+        // Handle 'edit' button click
         action('#contacts-details [data-edit]', 'click', () => {
             state.dispatch('contact-edit', true);
             page.show('contacts-edit');
         });
+
+        // Handle 'delete' button click with confirmation
         action('#contacts-details [data-delete]', 'click', () => {
             if (confirm('Soll der Kontakt gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
                 state.dispatch('contact-delete', data.id);
             }
         });
 
+        // Listen for contact state changes and re-render
         listen('contact', (contact) => data = contact || {});
+        // Refresh contact data after save
         listen('contact-save', () => {
             state.dispatch('contact', data.id);
         });
+        // Navigate back after successful deletion
         listen('contact-delete', () => {
             history.back();
         });

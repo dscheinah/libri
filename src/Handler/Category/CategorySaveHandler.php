@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for saving (updating) category names.
+ */
 class CategorySaveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class CategorySaveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles saving updated category names from the request body.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

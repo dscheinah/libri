@@ -10,6 +10,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response;
 use ZipStream\ZipStream;
 
+/**
+ * Handler for generating an attachment report (ZIP with PDFs).
+ */
 class ReportAttachmentHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -17,6 +20,10 @@ class ReportAttachmentHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to generate the attachment report.
+     * Expects 'start' and 'end' query parameters for the date range.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();

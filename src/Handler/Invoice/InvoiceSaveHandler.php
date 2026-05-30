@@ -9,6 +9,9 @@ use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for saving invoice data and its associated document.
+ */
 class InvoiceSaveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -17,6 +20,9 @@ class InvoiceSaveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles saving invoice data and uploading a document.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

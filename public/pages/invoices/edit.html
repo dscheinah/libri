@@ -57,6 +57,10 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Invoice edit page initialization.
+     * Handles creation and editing of both documents (Belege) and invoices (Rechnungen).
+     */
     page.register('invoices-edit', ({render, show, action, listen}) => {
         let data = state.get('invoice') || {};
         let preset = state.get('invoice-preset') || {};
@@ -66,6 +70,7 @@
         let contacts = state.get('contacts') || [];
 
         render(() => {
+            // Populate contact assignment dropdown
             helper.list('#invoices-edit-contact-id', [{}, ...contacts], (contact) => {
                 const option = helper.create('option');
                 option.value = contact.id;
@@ -101,24 +106,32 @@
                 helper.element('#invoices-edit').type.value = type;
                 helper.style('#invoices-edit-type', 'display', '');
             }
+
+            // Set form values
             helper.set('#invoices-edit-date', 'value', edit ? data.date : '');
             helper.set('#invoices-edit-description', 'value', edit ? data.description : '');
             helper.set('#invoices-edit-amount', 'value', edit ? data.amount : preset.amount || '');
             helper.set('#invoices-edit-reference', 'value', edit ? data.reference : '');
             helper.set('#invoices-edit-no-document', 'checked', edit && data.no_document);
+
+            // Disable fields if the entry is already assigned or finished
             let disabled = edit && (data.assigned || data.finished);
             helper.set('#invoices-edit-date', 'disabled', disabled);
             helper.set('#invoices-edit-amount', 'disabled', disabled);
             helper.set('#invoices-edit-contact-address', 'disabled', disabled);
         });
 
+        // Refresh contacts when showing the page
         show(() => {
            state.dispatch('contacts', null);
         });
 
+        // Handle type radio button changes
         action('#invoices-edit [name=type]', 'input', () => {
             state.set('invoice-type', parseInt(helper.element('#invoices-edit').type.value));
         });
+
+        // Handle form submission
         action('#invoices-edit', 'submit', (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -130,12 +143,15 @@
             state.dispatch('invoice-save', formData);
         });
 
+        // Listen for state changes to update local variables and re-render
         listen('invoice', (invoice) => data = invoice || {});
         listen('invoice-preset', (invoice) => preset = invoice || {});
         listen('invoice-edit', (trigger) => edit = trigger);
         listen('invoice-type', (value) => type = value);
         listen('invoice-contact', (data) => contact = data);
         listen('contacts', (data) => contacts = data || []);
+
+        // Navigate back after successful save
         listen('invoice-save', () => {
             history.back();
         });

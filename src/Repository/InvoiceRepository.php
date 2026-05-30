@@ -9,6 +9,9 @@ use App\Storage\MasterStorage;
 use DomainException;
 use Psr\Http\Message\UploadedFileInterface;
 
+/**
+ * Use this repository to handle invoice management, assignments to ledgers, and PDF generation.
+ */
 class InvoiceRepository
 {
     public function __construct(
@@ -19,7 +22,13 @@ class InvoiceRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of invoices based on type and optional search term.
+     * Use this method to display filtered invoice lists (e.g., incoming/outgoing).
+     *
+     * @param int    $type   The type of invoices (e.g., income/expense).
+     * @param string $search Optional search term to filter results.
+     *
+     * @return list<mixed> A list of invoice data arrays.
      */
     public function listInvoices(int $type, string $search): array
     {
@@ -43,7 +52,10 @@ class InvoiceRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of open (unassigned) invoices.
+     * Use this method for selecting invoices that need to be assigned to ledger entries.
+     *
+     * @return list<mixed> A list of open invoice data.
      */
     public function listOpenInvoices(): array
     {
@@ -63,7 +75,12 @@ class InvoiceRepository
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Retrieves a single invoice by its ID, including assigned ledgers and document info.
+     * Use this method for viewing or editing invoice details.
+     *
+     * @param int $id The unique identifier of the invoice.
+     *
+     * @return array<string, mixed>|null The invoice data or null if not found.
      */
     public function getInvoice(int $id): ?array
     {
@@ -95,6 +112,14 @@ class InvoiceRepository
         ];
     }
 
+    /**
+     * Finalizes an invoice by generating a PDF document if not already present.
+     * Use this method when an invoice is ready to be sent.
+     *
+     * @param int $id The unique identifier of the invoice to finish.
+     *
+     * @return bool True on success, false otherwise.
+     */
     public function finishInvoice(int $id): bool
     {
         $invoice = $this->storage->fetchOpenInvoice($id);
@@ -189,13 +214,28 @@ class InvoiceRepository
         return true;
     }
 
+    /**
+     * Removes an open invoice.
+     * Use this method to delete an invoice that has not yet been finalized or assigned.
+     *
+     * @param int $id The unique identifier of the invoice.
+     *
+     * @return bool True if successful.
+     */
     public function removeInvoice(int $id): bool
     {
         return (bool) $this->storage->removeOpenInvoice($id);
     }
 
     /**
-     * @param array<string, int|string> $data
+     * Saves or updates an invoice.
+     * Handles creation of new invoices or updating details of existing ones.
+     * Supports updating basic details even for closed/finished invoices.
+     *
+     * @param array<string, int|string> $data     The invoice data.
+     * @param UploadedFileInterface|null $document Optional uploaded document (PDF).
+     *
+     * @return bool True on success, false otherwise.
      */
     public function saveInvoice(array $data, ?UploadedFileInterface $document = null): bool
     {
@@ -252,7 +292,14 @@ class InvoiceRepository
     }
 
     /**
-     * @param list<int> $ledgerIds
+     * Assigns one or more ledger entries to an invoice.
+     * Ensures that the total amount of ledgers matches the invoice amount.
+     * Both ledgers and invoice are marked as closed upon successful assignment.
+     *
+     * @param int       $invoiceId The ID of the invoice.
+     * @param list<int> $ledgerIds  List of ledger entry IDs to assign.
+     *
+     * @throws DomainException If the invoice or a ledger does not exist, or if amounts don't match.
      */
     public function assignLedgers(int $invoiceId, array $ledgerIds): void
     {

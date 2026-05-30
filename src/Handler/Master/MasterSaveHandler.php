@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler to save master data (system settings).
+ */
 class MasterSaveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class MasterSaveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to save master data.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

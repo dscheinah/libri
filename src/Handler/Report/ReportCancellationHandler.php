@@ -9,6 +9,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response;
 
+/**
+ * Handler for generating a cancellation report (PDF).
+ */
 class ReportCancellationHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class ReportCancellationHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to generate the cancellation report.
+     * Expects 'start' and 'end' query parameters for the date range.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();

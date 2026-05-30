@@ -7,6 +7,9 @@ use App\Storage\AssignmentStorage;
 use App\Storage\LedgerStorage;
 use DomainException;
 
+/**
+ * Use this repository to handle ledger entries (journal), cancellations, and assignments to invoices.
+ */
 class LedgerRepository
 {
     public function __construct(
@@ -17,7 +20,13 @@ class LedgerRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of ledger entries based on account and optional search term.
+     * Use this method to display the journal for a specific account or filtered by text.
+     *
+     * @param string $account The account number to filter by.
+     * @param string $search  Optional search term to filter results.
+     *
+     * @return list<mixed> A list of ledger data arrays.
      */
     public function listLedgers(string $account, string $search): array
     {
@@ -47,7 +56,10 @@ class LedgerRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of open (unassigned) ledger entries.
+     * Use this method for selecting ledgers that need to be assigned to invoices.
+     *
+     * @return list<mixed> A list of open ledger entries.
      */
     public function listOpenLedgers(): array
     {
@@ -66,7 +78,12 @@ class LedgerRepository
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Retrieves a single ledger entry by its ID, including assigned invoices.
+     * Use this method for viewing or editing ledger entry details.
+     *
+     * @param int $id The unique identifier of the ledger entry.
+     *
+     * @return array<string, mixed>|null The ledger data or null if not found.
      */
     public function getLedger(int $id): ?array
     {
@@ -95,18 +112,30 @@ class LedgerRepository
         ];
     }
 
+    /**
+     * Cancels a ledger entry with a reason.
+     * Use this method to void an entry without deleting it from the journal.
+     *
+     * @param int    $id     The ID of the ledger entry to cancel.
+     * @param string $reason The reason for cancellation.
+     */
     public function cancelLedger(int $id, string $reason): void
     {
         $this->storage->updateCanceled($id, $reason);
     }
 
     /**
-     * @param array<string> $dates
-     * @param array<string> $accounts
-     * @param array<string> $offsets
-     * @param array<string> $amounts
-     * @param array<string> $descriptions
-     * @param array<string> $references
+     * Creates multiple ledger entries in a single transaction.
+     * Automatically handles transfers if the offset account is marked as "real".
+     * Use this method for bulk importing or entering multiple journal entries.
+     *
+     * @param int           $count        Number of entries to create.
+     * @param array<string> $dates        List of dates.
+     * @param array<string> $accounts     List of account numbers.
+     * @param array<string> $offsets      List of offset account numbers.
+     * @param array<string> $amounts      List of amounts as strings.
+     * @param array<string> $descriptions List of descriptions.
+     * @param array<string> $references   List of references.
      */
     public function createLedgers(
         int $count,
@@ -145,7 +174,14 @@ class LedgerRepository
     }
 
     /**
-     * @param list<int> $invoiceIds
+     * Assigns one or more invoices to a ledger entry.
+     * Ensures that the total amount of invoices matches the ledger amount.
+     * Both invoices and ledger entry are marked as closed upon successful assignment.
+     *
+     * @param int       $ledgerId   The ID of the ledger entry.
+     * @param list<int> $invoiceIds List of invoice IDs to assign.
+     *
+     * @throws DomainException If the ledger or an invoice does not exist, or if amounts don't match.
      */
     public function assignInvoices(int $ledgerId, array $invoiceIds): void
     {

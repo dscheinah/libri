@@ -4,6 +4,9 @@ namespace App\Repository;
 
 use App\Storage\AccountStorage;
 
+/**
+ * Use this repository to handle account-related business logic and data transformations.
+ */
 class AccountRepository
 {
     public function __construct(
@@ -12,7 +15,12 @@ class AccountRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of accounts.
+     * Use this method to get all accounts or only "real" (bank/cash) accounts for selection lists or tables.
+     *
+     * @param bool $filterForReal If true, only returns accounts marked as 'real'.
+     *
+     * @return list<mixed> A list of account data arrays with keys: no, name, category, real.
      */
     public function listAccounts(bool $filterForReal): array
     {
@@ -30,10 +38,14 @@ class AccountRepository
     }
 
     /**
-     * @param list<string> $nos
-     * @param list<string> $names
-     * @param list<string> $categories
-     * @param list<string> $reals
+     * Updates the accounts in the storage by synchronizing with the provided data.
+     * Existing accounts not present in the $nos list will be removed.
+     * Use this method to save changes from an account management interface.
+     *
+     * @param list<string> $nos        List of account numbers.
+     * @param list<string> $names      List of account names corresponding to the numbers.
+     * @param list<string> $categories List of category IDs for the accounts.
+     * @param list<string> $reals      List of account numbers that should be marked as "real".
      */
     public function updateAccounts(array $nos, array $names, array $categories, array $reals): void
     {

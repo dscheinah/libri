@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for creating multiple ledger entries (bulk insert).
+ */
 class LedgerSaveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class LedgerSaveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles bulk creation of ledger entries from the request body.
+     * Expects arrays for date, account, offset, amount, description, and reference.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

@@ -62,6 +62,13 @@
 
     const keys = ['date', 'account', 'offset', 'amount', 'description', 'reference'];
 
+    /**
+     * Renders a select option for an account.
+     *
+     * @param {Object} account
+     *
+     * @returns {HTMLOptionElement}
+     */
     const renderAccount = (account) => {
         const option = document.createElement('option');
         option.value = account.no || '';
@@ -69,6 +76,10 @@
         return option;
     };
 
+    /**
+     * Ledger entry mask initialization.
+     * Allows entering multiple ledger entries at once with auto-expanding rows and local persistence.
+     */
     page.register('ledgers-enter', ({render, show, action, listen}) => {
         let accounts = [], real = [], data = state.get('ledgers-enter') || {length: 1};
 
@@ -87,17 +98,20 @@
             });
         });
 
+        // Load account data when showing the page
         show(() => {
             state.dispatch('accounts', null);
             state.dispatch('accounts-real', null);
         });
 
+        // Handle input events to auto-save to state and add new rows if needed
         action('#ledgers-enter', 'input', (event, target) => {
             const form = new FormData(target),
                   data = {length: helper.elements('#ledgers-enter-list tr').length};
             let needsLine = false;
             keys.forEach((key) => {
                 data[key] = form.getAll(`${key}[]`);
+                // If the last line has any value, we'll need another empty line
                 if (data[key][data.length - 1]) {
                     needsLine = true;
                 }
@@ -107,6 +121,8 @@
             }
             state.dispatch('ledgers-enter', data);
         });
+
+        // Handle row deletion
         action('#ledgers-enter [data-delete]', 'click', (event) => {
             let tr = event.target.parentNode;
             while (!(tr instanceof HTMLTableRowElement)) {
@@ -114,6 +130,7 @@
             }
             tr.parentNode.removeChild(tr);
 
+            // Update state after deletion
             const form = new FormData(helper.element('#ledgers-enter')),
                   data = {length: helper.elements('#ledgers-enter-list tr').length};
             keys.forEach((key) => {
@@ -121,11 +138,14 @@
             });
             state.dispatch('ledgers-enter', data);
         });
+
+        // Handle form submission to save all entries
         action('#ledgers-enter', 'submit', (event) => {
             event.preventDefault();
             state.dispatch('ledgers-save', new FormData(event.target));
         });
 
+        // Listen for account state changes to populate selects
         listen('accounts', (data) => {
             data.unshift({});
             accounts = data;
@@ -134,7 +154,9 @@
             data.unshift({});
             real = data;
         });
+        // Update local data when ledger entry state changes
         listen('ledgers-enter', (enter) => data = enter);
+        // Navigate back after successful save
         listen('ledgers-save', () => {
             history.back();
         });

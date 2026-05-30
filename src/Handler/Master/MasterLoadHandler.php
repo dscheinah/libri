@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler to load master data (system settings).
+ */
 class MasterLoadHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class MasterLoadHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to load master data.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->helper->create(200, $this->repository->loadEntries());

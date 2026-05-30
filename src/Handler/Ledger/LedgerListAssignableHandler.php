@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for retrieving a list of open (assignable) ledger entries.
+ */
 class LedgerListAssignableHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class LedgerListAssignableHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to list open ledger entries.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->helper->create(200, $this->repository->listOpenLedgers());

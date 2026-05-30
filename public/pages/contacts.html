@@ -51,14 +51,22 @@
 <script type="module">
     import {helper, page, state} from '../js/app.js';
 
+    /**
+     * Triggers loading of contacts based on current search input.
+     */
     function load() {
         state.dispatch('contacts', helper.element('#contacts').search.value);
     }
 
+    /**
+     * Contacts page initialization.
+     * Manages listing, searching, and navigation to contact details or edit mode.
+     */
     page.register('contacts', ({render, show, action, listen}) => {
         let data = state.get('contacts') || [];
 
         render(() => {
+            // Render the list of contacts in the table body
             helper.list('#contacts tbody', data, (item) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -71,21 +79,28 @@
             });
         });
 
+        // Load initial data when showing the page
         show(load);
 
+        // Handle search form submission
         action('#contacts', 'submit', (event) => {
             event.preventDefault();
             state.dispatch('contacts', event.target.search.value);
         });
+
+        // Handle 'add contact' button click
         action('#contacts [data-add]', 'click', () => {
             state.dispatch('contact-edit', false);
             page.show('contacts-edit');
         });
+
+        // Handle 'more' button click to view contact details
         action('#contacts [data-contact]', 'click', (event, target) => {
             state.dispatch('contact', parseInt(target.value));
             page.show('contacts-details');
         });
 
+        // Update local data and re-render when contacts state changes
         listen('contacts', (contacts) => data = contacts);
     });
 </script>

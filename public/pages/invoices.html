@@ -66,8 +66,12 @@
 <script type="module">
     import {helper, page, state} from '../js/app.js';
 
-    const currency = {currency: 'EUR', style: 'currency'}, date = {year: '2-digit', month: '2-digit', day: '2-digit'};
+    const currency = {currency: 'EUR', style: 'currency'};
+    const date = {year: '2-digit', month: '2-digit', day: '2-digit'};
 
+    /**
+     * Triggers loading of invoices based on the selected type and search term.
+     */
     function load() {
         const form = helper.element('#invoices');
         const type = parseInt(form.type.value);
@@ -78,10 +82,15 @@
         state.dispatch('invoice-type', type);
     }
 
+    /**
+     * Invoices page initialization.
+     * Manages listing of documents/invoices, tab switching between types, and searching.
+     */
     page.register('invoices', ({render, show, action, listen}) => {
         let data = state.get('invoices') || [];
 
         render(() => {
+            // Render the list of invoices in the table body
             helper.list('#invoices tbody', data, (item) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -90,6 +99,7 @@
 <td class="amount ${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
 <td><button type="button" value="${item.id}" data-details><span class="sx-button-icon">▽</span> mehr</button></td>
 `;
+                // Highlight rows that are not fully assigned or missing documents
                 if (!item.assigned || (!item.document && !item.no_document)) {
                     tr.classList.add('sx-highlight');
                 }
@@ -97,8 +107,10 @@
             });
         });
 
+        // Load initial data when showing the page
         show(load);
 
+        // Handle tab switching between "Belege" and "Rechnungen"
         action('#invoices [name=type]', 'input', (event) => {
             helper.elements('#invoices .sx-tab').forEach((element) => element.classList.remove('sx-selected'));
             if (event.target.checked) {
@@ -106,21 +118,28 @@
             }
             load();
         });
+
+        // Handle search form submission
         action('#invoices', 'submit', (event) => {
             event.preventDefault();
             load();
         });
+
+        // Handle 'create' button click to open the edit page for a new invoice
         action('#invoices [data-add]', 'click', () => {
             state.dispatch('invoice-preset', {});
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-contact', null);
             page.show('invoices-edit');
         });
+
+        // Handle 'more' button click to view invoice details
         action('#invoices [data-details]', 'click', (event, target) => {
             state.dispatch('invoice', target.value);
             page.show('invoices-details');
         });
 
+        // Update local data and re-render when invoices state changes
         listen('invoices', (invoices) => data = invoices);
     });
 </script>

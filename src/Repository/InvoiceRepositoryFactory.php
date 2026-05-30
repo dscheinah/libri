@@ -8,6 +8,9 @@ use App\Storage\MasterStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the InvoiceRepository.
+ */
 class InvoiceRepositoryFactory implements FactoryInterface
 {
     /**

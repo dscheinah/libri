@@ -5,6 +5,9 @@ namespace App\Repository;
 use App\Storage\InvoiceStorage;
 use App\Storage\LedgerStorage;
 
+/**
+ * Repository for dashboard-related data aggregation.
+ */
 class DashboardRepository
 {
     public function __construct(
@@ -13,13 +16,20 @@ class DashboardRepository
     ) {
     }
 
+    /**
+     * Calculates the total balance across all real accounts.
+     *
+     * @return float The sum of all real account balances.
+     */
     public function accounts(): float
     {
         return array_sum(array_column(iterator_to_array($this->ledgerStorage->sumRealAccounts()), 'sum'));
     }
 
     /**
-     * @return list<array<string, string|float>>
+     * Aggregates ledger sums by category for the dashboard.
+     *
+     * @return list<array<string, string|float>> A list of categories with their names and total amounts.
      */
     public function categories(): array
     {
@@ -27,15 +37,17 @@ class DashboardRepository
         foreach ($this->ledgerStorage->sumCategories() as $category) {
             assert(is_array($category));
             $categories[] = [
-                'name' => $category['name'] ?: 'ohne Zuordnung',
-                'amount' => $category['sum'],
+                'name' => (string) ($category['name'] ?: 'ohne Zuordnung'),
+                'amount' => (float) $category['sum'],
             ];
         }
         return $categories;
     }
 
     /**
-     * @return list<array<string, string|int>>
+     * Identifies potential problems such as unassigned bookings or missing documents.
+     *
+     * @return list<array<string, string|int>> A list of problem areas and their counts.
      */
     public function problems(): array
     {

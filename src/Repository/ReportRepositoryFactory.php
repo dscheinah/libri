@@ -9,6 +9,9 @@ use App\Storage\LedgerStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the ReportRepository.
+ */
 class ReportRepositoryFactory implements FactoryInterface
 {
     /**

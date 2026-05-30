@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for removing a contact.
+ */
 class ContactRemoveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class ContactRemoveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles removing a contact by its 'id' query parameter.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getQueryParams()['id'] ?? 0;

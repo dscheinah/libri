@@ -32,8 +32,13 @@
     };
     let accounts = state.get('accounts-real') || [];
 
+    /**
+     * Ledger import page initialization.
+     * Allows importing and parsing CSV-like data, mapping columns, and transferring to the entry mask.
+     */
     page.register('ledgers-import', ({render, action, listen}) => {
         render(() => {
+            // Populate account select dropdown
             helper.list('#ledgers-import-account', accounts, (account) => {
                 const option = document.createElement('option');
                 option.value = account['no'] || '';
@@ -41,10 +46,12 @@
                 return option;
             });
 
+            // Set current form values from state
             helper.set('#ledgers-import-data', 'value', data.data);
             helper.set('#ledgers-import-divider', 'value', data.divider);
             helper.set('#ledgers-import-account', 'value', data.account);
 
+            // Render mapping UI for each parsed column
             helper.list('#ledgers-import-parsed', data.parsed, (parsed) => {
                 const div = helper.create('div');
                 div.className = 'ledgers-import-parsed';
@@ -62,6 +69,7 @@
             });
         });
 
+        // Parse data whenever configuration (divider, content, account) changes
         action('#ledgers-import', 'change', (event, target) => {
             const parsed = [];
 
@@ -81,6 +89,8 @@
                 parsed,
             });
         });
+
+        // Process mapping and transfer data to ledger entry mask
         action('#ledgers-import', 'submit', (event, target) => {
             event.preventDefault();
 
@@ -96,7 +106,8 @@
                 if (!parsed[index]) {
                     return;
                 }
-                switch (parsed[index]) {
+                const fieldName = parsed[index];
+                switch (fieldName) {
                     case 'date':
                         values = values.map((value) => {
                             const ts = Date.parse(value) || Date.parse(value.replace(/(\d+)\.(\d+)\.(\d+)/, '$3-$2-$1'));
@@ -107,14 +118,16 @@
                         values = values.map((value) => parseFloat(value.replace(',', '.')));
                         break;
                 }
-                enter[parsed[index]] = values;
+                enter[fieldName] = values;
             });
 
+            // Reset and populate the entry mask state
             state.dispatch('ledgers-enter', []);
             state.dispatch('ledgers-enter', enter);
             history.back();
         });
 
+        // Listen for state changes
         listen('ledgers-import', (payload) => data = payload || {});
         listen('accounts-real', (payload) => accounts = payload || []);
     });

@@ -6,6 +6,9 @@ use App\Storage\CategoryStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the CategoryRepository.
+ */
 class CategoryRepositoryFactory implements FactoryInterface
 {
     /**

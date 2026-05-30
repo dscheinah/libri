@@ -27,10 +27,14 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Category report page initialization.
+     */
     page.register('reports-categories', ({render, show, listen}) => {
         let categories = [];
 
         render(() => {
+            // Populate category multi-select dropdown
             helper.list('#reports-categories-categories', categories, (category) => {
                 const option = document.createElement('option');
                 option.value = category.id;
@@ -39,8 +43,10 @@
             });
         });
 
+        // Load categories when showing the page
         show(() => state.dispatch('categories', null));
 
+        // Update local data and re-render when categories state changes
         listen('categories', (data) => {
             categories = data;
         });

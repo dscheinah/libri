@@ -9,6 +9,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response;
 
+/**
+ * Handler to generate a PDF report for one or more accounts.
+ */
 class ReportAccountHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class ReportAccountHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to generate an account report.
+     * Expects 'start', 'end', and 'accounts' (array) as query parameters.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();

@@ -7,6 +7,11 @@ use Sx\Data\Storage;
 
 class InvoiceStorage extends Storage
 {
+    /**
+     * Counts all invoices that have not been assigned to any ledger entry.
+     *
+     * @return int The count of unassigned invoices.
+     */
     public function countUnassigned(): int
     {
         $result = $this->fetch(
@@ -19,6 +24,11 @@ class InvoiceStorage extends Storage
         return 0;
     }
 
+    /**
+     * Counts all invoices that are missing a document (PDF) and are not marked as "no document".
+     *
+     * @return int The count of invoices without documents.
+     */
     public function countWithoutDocument(): int
     {
         $result = $this->fetch(
@@ -32,6 +42,13 @@ class InvoiceStorage extends Storage
         return 0;
     }
 
+    /**
+     * Fetches all invoices for a specific type.
+     *
+     * @param int $type The invoice type.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields invoice data arrays.
+     */
     public function fetchAll(int $type): Generator
     {
         return $this->fetch(
@@ -43,6 +60,14 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Fetches invoices for a specific type matching a search term.
+     *
+     * @param int    $type   The invoice type.
+     * @param string $search The search term.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields matching invoice data arrays.
+     */
     public function fetchSome(int $type, string $search): Generator
     {
         $search = '%' . $search . '%';
@@ -55,6 +80,12 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all unassigned invoices that are either income or already finished.
+     * Use this method to retrieve invoices ready for assignment to ledger entries.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields open invoice data arrays.
+     */
     public function fetchOpen(): Generator
     {
         return $this->fetch(
@@ -64,7 +95,11 @@ class InvoiceStorage extends Storage
     }
 
     /**
-     * @return array<string, int|string|null|float>|null
+     * Fetches a single invoice by its ID.
+     *
+     * @param int $id The invoice ID.
+     *
+     * @return array<string, int|string|null|float>|null The invoice data or null if not found.
      */
     public function fetchOne(int $id): ?array
     {
@@ -77,7 +112,11 @@ class InvoiceStorage extends Storage
     }
 
     /**
-     * @return array<string, int|string|null|float>|null
+     * Fetches an open, non-finished invoice by its ID.
+     *
+     * @param int $id The invoice ID.
+     *
+     * @return array<string, int|string|null|float>|null The invoice data or null if not found.
      */
     public function fetchOpenInvoice(int $id): ?array
     {
@@ -92,6 +131,13 @@ class InvoiceStorage extends Storage
         return null;
     }
 
+    /**
+     * Removes an open, non-finished invoice by its ID.
+     *
+     * @param int $id The invoice ID.
+     *
+     * @return int The number of affected rows.
+     */
     public function removeOpenInvoice(int $id): int
     {
         return $this->execute(
@@ -100,6 +146,20 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Creates a new invoice.
+     *
+     * @param int         $type           The invoice type (income/expense).
+     * @param string      $date           Invoice date.
+     * @param float       $amount         Invoice amount.
+     * @param string      $description    Description.
+     * @param string      $reference      Reference/Invoice number.
+     * @param bool        $noDocument     Whether no document is expected.
+     * @param string      $contactAddress Address of the contact.
+     * @param int|null    $contactId      ID of the associated contact.
+     *
+     * @return int The ID of the newly created invoice.
+     */
     public function create(
         int $type,
         string $date,
@@ -118,6 +178,19 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Updates all fields of an invoice.
+     * Use this for comprehensive editing of an invoice.
+     *
+     * @param int         $id             The invoice ID.
+     * @param string      $date           Invoice date.
+     * @param float       $amount         Invoice amount.
+     * @param string      $description    Description.
+     * @param string      $reference      Reference/Invoice number.
+     * @param bool        $noDocument     Whether no document is expected.
+     * @param string      $contactAddress Address of the contact.
+     * @param int|null    $contactId      ID of the associated contact.
+     */
     public function updateAll(
         int $id,
         string $date,
@@ -136,6 +209,16 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Updates only non-financial details of an invoice.
+     * Use this when the invoice is already closed or finished, where amount/date shouldn't change.
+     *
+     * @param int      $id          The invoice ID.
+     * @param string   $description Description.
+     * @param string   $reference   Reference/Invoice number.
+     * @param bool     $noDocument  Whether no document is expected.
+     * @param int|null $contactId   ID of the associated contact.
+     */
     public function updateDetails(
         int $id,
         string $description,
@@ -151,11 +234,24 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Updates the reference (invoice number) of an invoice.
+     *
+     * @param int    $id        The invoice ID.
+     * @param string $reference The new reference.
+     */
     public function updateReference(int $id, string $reference): void
     {
         $this->execute('UPDATE `invoices` SET `reference` = ? WHERE `id` = ?', [$reference, $id]);
     }
 
+    /**
+     * Updates/attaches a document to an invoice.
+     *
+     * @param int    $id      The invoice ID.
+     * @param string $name    The document filename.
+     * @param string $content The document content (binary).
+     */
     public function updateDocument(int $id, string $name, string $content): void
     {
         $this->execute(
@@ -164,6 +260,14 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Fetches invoices within a date range for reporting.
+     *
+     * @param string $start Start date.
+     * @param string $end   End date.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields invoice data arrays.
+     */
     public function fetchForReport(string $start, string $end): Generator
     {
         return $this->fetch('SELECT 
@@ -180,6 +284,12 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all unassigned invoices.
+     * Similar to fetchOpen() but provides more columns for detailed lists.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields unassigned invoice data arrays.
+     */
     public function fetchUnassigned(): Generator
     {
         return $this->fetch('SELECT 
@@ -195,6 +305,11 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all invoices that are missing a document.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields invoice data arrays without documents.
+     */
     public function fetchWithoutDocument(): Generator
     {
         return $this->fetch('SELECT 
@@ -210,6 +325,11 @@ class InvoiceStorage extends Storage
         );
     }
 
+    /**
+     * Finalizes an invoice by marking it as finished.
+     *
+     * @param int $id The invoice ID.
+     */
     public function markFinished(int $id): void
     {
         $this->execute('UPDATE `invoices` SET `finished` = 1 WHERE `id` = ?', [$id]);

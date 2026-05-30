@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for updating the account list.
+ */
 class AccountSaveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class AccountSaveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to save/synchronize all accounts.
+     * Expects parallel arrays of account numbers, names, and categories in the POST body.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

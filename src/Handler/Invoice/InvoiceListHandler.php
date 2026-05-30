@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler to retrieve a list of invoices, filtered by type and optionally by a search term.
+ */
 class InvoiceListHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class InvoiceListHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to list invoices.
+     * Expects 'type' and optionally 'search' query parameters.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();

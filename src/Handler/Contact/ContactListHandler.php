@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler to retrieve a list of contacts, optionally filtered by a search term.
+ */
 class ContactListHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class ContactListHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to list contacts.
+     * Supports a 'search' query parameter for filtering.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $search = $request->getQueryParams()['search'] ?? null;

@@ -6,6 +6,9 @@ use App\Storage\ContactStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the ContactRepository.
+ */
 class ContactRepositoryFactory implements FactoryInterface
 {
     /**

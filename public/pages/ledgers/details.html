@@ -62,22 +62,35 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
-    const currency = {currency: 'EUR', style: 'currency'}, date = {year: 'numeric', month: '2-digit', day: '2-digit'};
+    const currency = {currency: 'EUR', style: 'currency'};
+    const date = {year: 'numeric', month: '2-digit', day: '2-digit'};
 
+    /**
+     * Ledger details page initialization.
+     * Displays information about a specific ledger entry (Buchung),
+     * its assignment status to invoices, and allows cancellation.
+     */
     page.register('ledgers-details', ({render, action, listen}) => {
         let data = state.get('ledger') || {invoices: []};
 
         render(() => {
+            // List invoices assigned to this ledger entry
             helper.list('#ledgers-details-assigned', data.invoices, (invoice) => {
                 const li = document.createElement('li');
                 li.innerHTML = `<button value="${invoice.id}" data-invoice>${invoice.description}</button>`;
                 return li;
             });
+
+            // Toggle UI elements based on whether it's a transfer (Umbuchung) or regular booking
             helper.set('#ledgers-details-assignment', 'hidden', data.transfer);
             helper.set('#ledgers-details-transfer', 'hidden', !data.transfer);
+
+            // Toggle visibility of assignment status and buttons
             helper.style('#ledgers-details-assigned', 'display', data.invoices.length ? '' : 'none');
             helper.style('#ledgers-details-assignable', 'display', data.assigned ? 'none' : '');
             helper.style('#ledgers-details-assign', 'display', data.assigned ? 'none' : '');
+
+            // Fill basic ledger entry fields
             helper.set('#ledgers-details-id', 'innerHTML', data.id || '');
             helper.set('#ledgers-details-date', 'innerHTML', new Date(data.date).toLocaleDateString('de', date));
             helper.set('#ledgers-details-account', 'innerHTML', data.account?.description || '');
@@ -86,13 +99,18 @@
             helper.set('#ledgers-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
             helper.set('#ledgers-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
             helper.set('#ledgers-details-reference', 'innerHTML', data.reference || '');
+
+            // Only show cancellation form if not assigned and not already canceled
             helper.style('#ledgers-details-cancel', 'display', data.assigned || data.canceled ? 'none' : '');
         });
 
+        // Navigation to assigned invoice details
         action('#ledgers-details [data-invoice]', 'click', (event, target) => {
             state.dispatch('invoice', target.value);
             page.show('invoices-details');
         });
+
+        // Handle ledger entry cancellation
         action('#ledgers-details-cancel', 'submit', (event) => {
             event.preventDefault();
             if (confirm('Soll die Buchung storniert werden? Das kann nicht rückgängig gemacht werden.')) {
@@ -102,6 +120,7 @@
             }
         });
 
+        // Listen for state changes and re-render or navigate
         listen('ledger', (ledger) => data = ledger || {});
         listen('ledger-cancel', () => {
             history.back();

@@ -7,6 +7,9 @@ use App\Storage\LedgerStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the DashboardRepository.
+ */
 class DashboardRepositoryFactory implements FactoryInterface
 {
     /**

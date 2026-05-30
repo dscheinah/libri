@@ -6,6 +6,9 @@ use App\Storage\AccountStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the AccountRepository.
+ */
 class AccountRepositoryFactory implements FactoryInterface
 {
     /**

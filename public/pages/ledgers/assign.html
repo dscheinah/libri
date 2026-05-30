@@ -50,9 +50,17 @@
 
     const currency = {currency: 'EUR', style: 'currency'};
 
+    /**
+     * Ledger assignment page initialization.
+     * Allows linking a ledger entry (Buchung) to one or more invoices/documents.
+     */
     page.register('ledgers-assign', ({render, show, action, listen}) => {
         let ledger = state.get('ledger'), invoices = state.get('invoices-assignable') || [];
 
+        /**
+         * Checks the sum of selected invoices and enables/disables the submit button.
+         * The sum must exactly match the ledger entry amount.
+         */
         function enableSubmitBySelectedAmounts() {
             const amount = Array.from(helper.elements('#ledgers-assign :checked'))
                 .reduce((amount, checkbox) =>
@@ -86,16 +94,21 @@
             enableSubmitBySelectedAmounts();
         });
 
+        // Load assignable invoices when showing the page
         show(() => state.dispatch('invoices-assignable', null));
 
+        // Re-evaluate submit button state on checkbox changes
         action('#ledgers-assign', 'change', enableSubmitBySelectedAmounts);
 
+        // Handle assignment form submission
         action('#ledgers-assign', 'submit', (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
             formData.append('id', ledger.id);
             state.dispatch('ledgers-assign', formData);
         });
+
+        // Open invoice creation page preset with current ledger amount
         action('#ledgers-assign [data-invoice]', 'click', () => {
             state.dispatch('invoice-preset', ledger ? {amount: ledger.amount} : {})
             state.dispatch('invoice-edit', false);
@@ -103,8 +116,10 @@
             page.show('invoices-edit');
         });
 
+        // Listen for state changes and re-render
         listen('ledger', (data) => ledger = data);
         listen('invoices-assignable', (data) => invoices = data);
+        // Navigate back after successful assignment
         listen('ledgers-assign', () => {
             history.back();
         });

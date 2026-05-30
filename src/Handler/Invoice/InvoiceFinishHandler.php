@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for finalizing an invoice (marking it as finished).
+ */
 class InvoiceFinishHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class InvoiceFinishHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles finalizing an invoice by its 'id' query parameter.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getQueryParams()['id'] ?? 0;

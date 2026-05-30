@@ -6,6 +6,9 @@ use App\Repository\ReportRepository;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for report handlers that require the ReportRepository.
+ */
 class ReportHandlerFactory implements FactoryInterface
 {
     /**

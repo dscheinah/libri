@@ -1,5 +1,6 @@
 /**
  * Populates the initial application state.
+ * Loads previously entered ledger entries from localStorage if available.
  *
  * @param {State} state
  */

@@ -9,6 +9,9 @@ use App\Storage\InvoiceStorage;
 use App\Storage\LedgerStorage;
 use ZipStream\ZipStream;
 
+/**
+ * Use this repository to generate PDF and ZIP reports for accounts, categories, cancellations, etc.
+ */
 class ReportRepository
 {
     private string $style = '
@@ -119,7 +122,13 @@ class ReportRepository
     }
 
     /**
-     * @param list<string> $accounts
+     * Renders a report for specific accounts within a date range into a PDF.
+     * Use this method to generate account statements or journals.
+     *
+     * @param Pdf          $pdf      The PDF helper instance.
+     * @param string       $start    Start date (YYYY-MM-DD).
+     * @param string       $end      End date (YYYY-MM-DD).
+     * @param list<string> $accounts List of account numbers to include.
      */
     public function renderAccountReport(Pdf $pdf, string $start, string $end, array $accounts): void
     {
@@ -174,6 +183,15 @@ class ReportRepository
         );
     }
 
+    /**
+     * Renders an attachment report, providing a PDF summary and a ZIP archive of documents.
+     * Use this method to export all invoice documents for a specific period.
+     *
+     * @param Pdf       $pdf   The PDF helper instance for the summary.
+     * @param ZipStream $zip   The ZipStream instance to collect documents.
+     * @param string    $start Start date (YYYY-MM-DD).
+     * @param string    $end   End date (YYYY-MM-DD).
+     */
     public function renderAttachmentReport(Pdf $pdf, ZipStream $zip, string $start, string $end): void
     {
         $header = $this->applyOutputTranslation(['start' => $start, 'end' => $end]);
@@ -184,7 +202,7 @@ class ReportRepository
             assert(is_array($invoice));
             if ($invoice['document']) {
                 $name = "{$invoice['id']}_{$invoice['document_name']}";
-                $zip->addFile($name, $invoice['document']);
+                $zip->addFile($name, (string) $invoice['document']);
                 $invoiceRows .= $this->renderInvoiceRow($invoice, $name);
             } else {
                 $invoiceRows .= $this->renderInvoiceRow($invoice, '');
@@ -204,6 +222,14 @@ class ReportRepository
         );
     }
 
+    /**
+     * Renders a report of all canceled ledger entries within a date range.
+     * Use this method to audit canceled transactions.
+     *
+     * @param Pdf    $pdf   The PDF helper instance.
+     * @param string $start Start date (YYYY-MM-DD).
+     * @param string $end   End date (YYYY-MM-DD).
+     */
     public function renderCancellationReport(Pdf $pdf, string $start, string $end): void
     {
         $header = $this->applyOutputTranslation(['start' => $start, 'end' => $end]);
@@ -232,7 +258,13 @@ class ReportRepository
     }
 
     /**
-     * @param list<int|string> $categories
+     * Renders a report for specific categories within a date range into a PDF.
+     * Use this method to analyze spending or income by category.
+     *
+     * @param Pdf       $pdf        The PDF helper instance.
+     * @param string    $start      Start date (YYYY-MM-DD).
+     * @param string    $end        End date (YYYY-MM-DD).
+     * @param list<int> $categories List of category IDs to include.
      */
     public function renderCategoryReport(Pdf $pdf, string $start, string $end, array $categories): void
     {
@@ -286,6 +318,12 @@ class ReportRepository
         );
     }
 
+    /**
+     * Renders a problem report highlighting discrepancies (e.g., unassigned invoices or ledgers).
+     * Use this method for data consistency checks.
+     *
+     * @param Pdf $pdf The PDF helper instance.
+     */
     public function renderProblemReport(Pdf $pdf): void
     {
         $unassignedLedgerRows = '';
@@ -299,12 +337,12 @@ class ReportRepository
 
         foreach ($this->invoiceStorage->fetchUnassigned() as $invoice) {
             assert(is_array($invoice));
-            $unassignedInvoiceRows .= $this->renderInvoiceRow($invoice, $invoice['document_name']);
+            $unassignedInvoiceRows .= $this->renderInvoiceRow($invoice, (string) $invoice['document_name']);
         }
 
         foreach ($this->invoiceStorage->fetchWithoutDocument() as $invoice) {
             assert(is_array($invoice));
-            $noDocumentInvoiceRows .= $this->renderInvoiceRow($invoice, $invoice['document_name']);
+            $noDocumentInvoiceRows .= $this->renderInvoiceRow($invoice, (string) $invoice['document_name']);
         }
 
         $pdf->addHTMLCell(

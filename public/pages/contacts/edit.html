@@ -28,6 +28,10 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Contact edit page initialization.
+     * Handles both creating new contacts and editing existing ones.
+     */
     page.register('contacts-edit', ({render, action, listen}) => {
         let data = state.get('contact') || {}, edit = state.get('contact-edit');
 
@@ -39,6 +43,7 @@
             helper.set('#contacts-edit-address', 'value', edit ? data.address : '');
         });
 
+        // Handle form submission for saving the contact
         action('#contacts-edit', 'submit', (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -48,8 +53,10 @@
             state.dispatch('contact-save', formData);
         });
 
+        // Listen for state changes to update local variables and re-render
         listen('contact', (contact) => data = contact || {});
         listen('contact-edit', (trigger) => edit = trigger);
+        // Navigate back after successful save
         listen('contact-save', () => {
             history.back();
         });

@@ -51,16 +51,23 @@
 
     const keys = ['no', 'name', 'category'];
 
+    /**
+     * Account settings page initialization.
+     * Manages the chart of accounts (Kontenplan), allowing adding, editing, and deleting accounts.
+     */
     page.register('settings-accounts', ({render, show, action, listen}) => {
         let data = state.get('accounts') || [], categories = [];
 
         render(() => {
+            // Populate category dropdown in the template row
             helper.list('#settings-accounts-template [name^=category]', categories, (category) => {
                 const option = document.createElement('option');
                 option.value = category.id || '';
                 option.innerHTML = category.name || '';
                 return option;
             });
+
+            // Render all accounts from the local data
             const template = helper.element('#settings-accounts-template tr');
             helper.list('#settings-accounts tbody', data, (item, index) => {
                 const clone = template.cloneNode(true);
@@ -77,32 +84,41 @@
             });
         });
 
+        // Load accounts and categories when showing the page
         show(() => {
             state.dispatch('accounts', null);
             state.dispatch('categories', null);
         });
 
+        // Handle account deletion
         action('#settings-accounts [data-delete]', 'click', (event, target) => {
             data.splice(parseInt(target.dataset.delete), 1);
             state.set('accounts', data);
         })
+
+        // Handle adding a new empty account row
         action('#settings-accounts [data-add]', 'click', () => {
             data.push({});
             state.set('accounts', data);
         });
+
+        // Handle form submission to save all changes
         action('#settings-accounts', 'submit', (event) => {
             event.preventDefault();
+            // Sync the "real" (Bestand) status with the account number for the backend
             helper.element('#settings-accounts tbody').querySelectorAll('tr').forEach((row) => {
                 row.querySelector('[name^=real]').value = row.querySelector('[name^=no]').value;
             });
             state.dispatch('accounts-save', new FormData(event.target));
         });
 
+        // Listen for state changes to update local data and re-render
         listen('accounts', (accounts) => data = accounts);
         listen('categories', (data) => {
             data.unshift({});
             categories = data;
         });
+        // Navigate back after successful save
         listen('accounts-save', () => {
             state.dispatch('accounts', null);
             history.back();

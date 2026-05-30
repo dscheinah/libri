@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for loading the dashboard data.
+ */
 class DashboardHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class DashboardHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to retrieve dashboard overview data.
+     * Returns account balances, category sums, and a count of potential data problems.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->helper->create(200, [

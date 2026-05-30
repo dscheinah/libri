@@ -37,23 +37,32 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Master data settings page initialization.
+     * Manages company-wide settings like address, bank account, and invoice number generation.
+     */
     page.register('settings-master', ({render, show, action, listen}) => {
         let data = state.get('master') || {};
 
         render(() => {
+            // Fill form fields with existing master data
             helper.set('#settings-master-address', 'innerHTML', data.address || '');
             helper.set('#settings-master-account', 'innerHTML', data.account || '');
             helper.set('#settings-master-number', 'value', data.number || '');
         });
 
+        // Load master data when showing the page
         show(() => state.dispatch('master', null));
 
+        // Handle form submission to save changes
         action('#settings-master form', 'submit', (event) => {
             event.preventDefault();
             state.dispatch('master-save', new FormData(event.target));
         });
 
+        // Update local data and re-render when master data state changes
         listen('master', (master) => data = master);
+        // Navigate back after successful save
         listen('master-save', () => {
            state.dispatch('master', null);
            history.back();

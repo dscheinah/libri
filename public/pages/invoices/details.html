@@ -72,12 +72,19 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
-    const currency = {currency: 'EUR', style: 'currency'}, date = {year: 'numeric', month: '2-digit', day: '2-digit'};
+    const currency = {currency: 'EUR', style: 'currency'};
+    const date = {year: 'numeric', month: '2-digit', day: '2-digit'};
 
+    /**
+     * Invoice details page initialization.
+     * Displays information about a document (Beleg) or invoice (Rechnung),
+     * including its assignment status and linked ledger entries.
+     */
     page.register('invoices-details', ({render, action, listen}) => {
         let data = state.get('invoice') || {ledgers: []};
 
         render(() => {
+            // Configure UI based on the type (1: Beleg, 2: Rechnung)
             switch (data.type) {
                 case 1:
                     if (data.no_document) {
@@ -109,22 +116,31 @@
                     helper.style('#invoices-details-finish', 'display', '');
                     break;
             }
+            // Control button accessibility based on assignment/finish status
             helper.set('#invoices-details-finish', 'disabled', data.assigned || data.finished);
             helper.set('#invoices-details-delete', 'disabled', data.assigned || data.finished);
+
+            // List assigned ledger entries
             helper.list('#invoices-details-assigned', data.ledgers, (ledger) => {
                 const li = document.createElement('li');
                 li.innerHTML = `<button value="${ledger.id}" data-ledger>${ledger.description}</button>`;
                 return li;
             });
+
+            // Toggle visibility of assignment UI
             helper.style('#invoices-details-assigned', 'display', data.ledgers.length ? '' : 'none');
             helper.style('#invoices-details-assignable', 'display', data.assigned ? 'none' : '');
             helper.style('#invoices-details-assign', 'display', data.assigned ? 'none' : '');
+
+            // Fill basic invoice fields
             helper.set('#invoices-details-id', 'innerHTML', data.id || '');
             helper.set('#invoices-details-date', 'innerHTML', new Date(data.date).toLocaleDateString('de', date));
             helper.set('#invoices-details-description', 'innerHTML', data.description || '');
             helper.set('#invoices-details-amount', 'className', data.amount > 0 ? 'income' : 'expense');
             helper.set('#invoices-details-amount', 'innerHTML', (data.amount || 0).toLocaleString('de', currency));
             helper.set('#invoices-details-reference', 'innerHTML', data.reference || '');
+
+            // Handle document link visibility
             if (data.document) {
                 helper.set('#invoices-details-document', 'href', data.document.link);
                 helper.set('#invoices-details-document', 'innerHTML', data.document.name);
@@ -135,6 +151,8 @@
                 helper.style('#invoices-details-document', 'display', 'none');
                 helper.style('#invoices-details-no-document', 'display', '');
             }
+
+            // Handle contact information visibility
             if (data.contact) {
                 helper.set(
                     '#invoices-details-contact-address',
@@ -153,29 +171,39 @@
             }
         });
 
+        // Navigation to linked ledger details
         action('#invoices-details [data-ledger]', 'click', (event, target) => {
             state.dispatch('ledger', parseInt(target.value));
             page.show('ledgers-details');
         });
+
+        // Navigation to contact details
         action('#invoices-details [data-contact]', 'click', (event, target) => {
             state.dispatch('contact', parseInt(target.value));
             page.show('contacts-details');
         });
+
+        // Open edit mode
         action('#invoices-details [data-edit]', 'click', () => {
             state.dispatch('invoice-edit', true);
             page.show('invoices-edit');
         });
+
+        // Finalize invoice (generate PDF document)
         action('#invoices-details-finish', 'click', () => {
             if (confirm('Soll die Rechnung finalisiert werden? Das kann nicht rückgängig gemacht werden.')) {
                 state.dispatch('invoice-finish', data.id);
             }
         });
+
+        // Delete the document/invoice
         action('#invoices-details-delete', 'click', () => {
             if (confirm('Soll der Beleg gelöscht werden? Das kann nicht rückgängig gemacht werden.')) {
                 state.dispatch('invoice-delete', data.id);
             }
         });
 
+        // Listen for state changes to refresh or navigate
         listen('invoice', (invoice) => data = invoice || {});
         listen('invoice-delete', () => {
             history.back();

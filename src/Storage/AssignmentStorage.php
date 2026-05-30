@@ -8,7 +8,11 @@ use Sx\Data\Storage;
 class AssignmentStorage extends Storage
 {
     /**
-     * @return array<mixed>|null
+     * Fetches an open ledger entry by ID and locks it for update.
+     *
+     * @param int $id The ledger entry ID.
+     *
+     * @return array<mixed>|null The ledger data or null if not found or already closed/canceled/transfer.
      */
     public function fetchOpenLedger(int $id): ?array
     {
@@ -26,7 +30,11 @@ class AssignmentStorage extends Storage
     }
 
     /**
-     * @return array<mixed>|null
+     * Fetches an open invoice by ID and locks it for update.
+     *
+     * @param int $id The invoice ID.
+     *
+     * @return array<mixed>|null The invoice data or null if not found or already closed.
      */
     public function fetchOpenInvoice(int $id): ?array
     {
@@ -43,6 +51,12 @@ class AssignmentStorage extends Storage
         return null;
     }
 
+    /**
+     * Creates a new assignment between a ledger entry and an invoice.
+     *
+     * @param int $ledgerId  The ledger entry ID.
+     * @param int $invoiceId The invoice ID.
+     */
     public function createAssignment(int $ledgerId, int $invoiceId): void
     {
         $this->execute(
@@ -51,16 +65,33 @@ class AssignmentStorage extends Storage
         );
     }
 
+    /**
+     * Marks a ledger entry as closed (assigned).
+     *
+     * @param int $ledgerId The ledger entry ID.
+     */
     public function markLedgerClosed(int $ledgerId): void
     {
         $this->execute('UPDATE `ledgers` SET `closed` = 1 WHERE `id` = ?', [$ledgerId]);
     }
 
+    /**
+     * Marks an invoice as closed (assigned).
+     *
+     * @param int $invoiceId The invoice ID.
+     */
     public function markInvoiceClosed(int $invoiceId): void
     {
         $this->execute('UPDATE `invoices` SET `closed` = 1 WHERE `id` = ?', [$invoiceId]);
     }
 
+    /**
+     * Fetches all invoices assigned to a specific ledger entry.
+     *
+     * @param int $id The ledger entry ID.
+     *
+     * @return Generator<int, array<string, int|string>> Yields invoice data arrays.
+     */
     public function fetchAssignedInvoicesForLedger(int $id): Generator
     {
         return $this->fetch(
@@ -70,6 +101,13 @@ class AssignmentStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all ledger entries assigned to a specific invoice.
+     *
+     * @param int $id The invoice ID.
+     *
+     * @return Generator<int, array<string, int|string>> Yields ledger data arrays.
+     */
     public function fetchAssignedLedgersForInvoice(int $id): Generator
     {
         return $this->fetch(

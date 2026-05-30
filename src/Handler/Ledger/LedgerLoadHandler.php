@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for loading a single ledger entry by ID.
+ */
 class LedgerLoadHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class LedgerLoadHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles loading a ledger entry by its 'id' query parameter.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getQueryParams()['id'] ?? 0;

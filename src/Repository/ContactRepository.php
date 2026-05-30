@@ -4,6 +4,9 @@ namespace App\Repository;
 
 use App\Storage\ContactStorage;
 
+/**
+ * Use this repository to handle contact management (CRUD).
+ */
 class ContactRepository
 {
     public function __construct(
@@ -12,7 +15,12 @@ class ContactRepository
     }
 
     /**
-     * @return list<mixed>
+     * Retrieves a list of contacts.
+     * Use this method to get all contacts or search for specific ones by name or other attributes.
+     *
+     * @param string $search Search term to filter contacts.
+     *
+     * @return list<mixed> A list of contact data.
      */
     public function listContacts(string $search): array
     {
@@ -21,7 +29,12 @@ class ContactRepository
     }
 
     /**
-     * @return array<string, mixed>|null
+     * Retrieves a single contact by its ID.
+     * Use this method to get detailed information about a contact for editing or display.
+     *
+     * @param int $id The unique identifier of the contact.
+     *
+     * @return array<string, mixed>|null The contact data array or null if not found.
      */
     public function getContact(int $id): ?array
     {
@@ -40,13 +53,23 @@ class ContactRepository
         ];
     }
 
+    /**
+     * Removes a contact from the storage.
+     * Use this method to delete a contact.
+     *
+     * @param int $id The unique identifier of the contact to remove.
+     */
     public function removeContact(int $id): void
     {
         $this->storage->remove($id);
     }
 
     /**
-     * @param array<string, int|string> $data
+     * Saves a contact to the storage.
+     * If an 'id' is present in the data, it updates the existing contact. Otherwise, it creates a new one.
+     * Use this method to handle both creation and modification of contacts.
+     *
+     * @param array<string, int|string> $data The contact data including name, mail, phone, and address.
      */
     public function saveContact(array $data): void
     {

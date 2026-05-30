@@ -27,10 +27,14 @@
 <script type="module">
     import {helper, page, state} from '../../js/app.js';
 
+    /**
+     * Account report page initialization.
+     */
     page.register('reports-accounts', ({render, show, listen}) => {
         let accounts = state.get('accounts') || [];
 
         render(() => {
+           // Populate account multi-select dropdown
            helper.list('#reports-accounts-accounts', accounts, (account) => {
               const option = document.createElement('option');
               option.value = account.no;
@@ -39,8 +43,10 @@
            });
         });
 
+        // Load accounts when showing the page
         show(() => state.dispatch('accounts', null));
 
+        // Update local data and re-render when accounts state changes
         listen('accounts', (data) => accounts = data);
     });
 </script>

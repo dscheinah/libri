@@ -7,6 +7,11 @@ use Sx\Data\Storage;
 
 class LedgerStorage extends Storage
 {
+    /**
+     * Calculates the sum of balances for all "real" accounts.
+     *
+     * @return Generator<int, array<string, string|float>> Yields sums per account.
+     */
     public function sumRealAccounts(): Generator
     {
         return $this->fetch(
@@ -15,6 +20,11 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Calculates the sum of ledger entries grouped by category.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields sums per category.
+     */
     public function sumCategories(): Generator
     {
         return $this->fetch(
@@ -25,6 +35,11 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Counts all ledger entries that have not been assigned to any invoice.
+     *
+     * @return int The count of unassigned ledger entries.
+     */
     public function countUnassigned(): int
     {
         $result = $this->fetch(
@@ -37,6 +52,14 @@ class LedgerStorage extends Storage
         return 0;
     }
 
+    /**
+     * Fetches ledger entries filtered by account and search term.
+     *
+     * @param string $account Account number.
+     * @param string $search  Search term.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields matching ledger entries.
+     */
     public function fetchSome(string $account, string $search): Generator
     {
         $account = '%' . $account . '%';
@@ -64,6 +87,12 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all ledger entries that are unassigned and not canceled or transfers.
+     * Use this method to retrieve entries for assignment to invoices.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields open ledger data arrays.
+     */
     public function fetchOpen(): Generator
     {
         return $this->fetch(
@@ -73,7 +102,11 @@ class LedgerStorage extends Storage
     }
 
     /**
-     * @return array<string, int|string|null|float>|null
+     * Fetches a single ledger entry by ID.
+     *
+     * @param int $id The ledger entry ID.
+     *
+     * @return array<string, int|string|null|float>|null The ledger entry data or null if not found.
      */
     public function fetchOne(int $id): ?array
     {
@@ -92,11 +125,29 @@ class LedgerStorage extends Storage
         return null;
     }
 
+    /**
+     * Marks a ledger entry as canceled with a reason.
+     *
+     * @param int    $id     The ledger entry ID.
+     * @param string $reason The cancellation reason.
+     */
     public function updateCanceled(int $id, string $reason): void
     {
         $this->execute('UPDATE `ledgers` SET `canceled` = true, `canceled_reason` = ? WHERE `id` = ? AND `closed` = false', [$reason, $id]);
     }
 
+    /**
+     * Creates a new ledger entry.
+     *
+     * @param string $date        Transaction date.
+     * @param string $accountNo   Account number.
+     * @param string $offsetNo    Offset account number.
+     * @param float  $amount      Amount.
+     * @param string $description Description.
+     * @param string $reference   Reference.
+     *
+     * @return int The ID of the newly created entry.
+     */
     public function create(
         string $date,
         string $accountNo,
@@ -114,6 +165,19 @@ class LedgerStorage extends Storage
         return $id;
     }
 
+    /**
+     * Creates a new ledger entry marked as a transfer.
+     * Use this when moving funds between real accounts.
+     *
+     * @param string $date        Transaction date.
+     * @param string $accountNo   Account number.
+     * @param string $offsetNo    Offset account number.
+     * @param float  $amount      Amount.
+     * @param string $description Description.
+     * @param string $reference   Reference.
+     *
+     * @return int The ID of the newly created transfer entry.
+     */
     public function createTransfer(
         string $date,
         string $accountNo,
@@ -131,6 +195,12 @@ class LedgerStorage extends Storage
         return $id;
     }
 
+    /**
+     * Retrieves the next available ID for a new ledger entry.
+     * Uses FOR UPDATE to prevent race conditions during bulk inserts.
+     *
+     * @return int The next ID.
+     */
     private function getNextInsertId(): int
     {
         $latest = $this->fetch('SELECT MAX(`id`) AS `id` FROM `ledgers` FOR UPDATE')->current();
@@ -141,6 +211,14 @@ class LedgerStorage extends Storage
         return 1;
     }
 
+    /**
+     * Fetches the total balance of an account before a specific date.
+     *
+     * @param string $account Account number.
+     * @param string $date    The threshold date (exclusive).
+     *
+     * @return float The balance sum.
+     */
     public function fetchAmountBeforeDateByAccount(string $account, string $date): float
     {
         $amount = $this->fetch(
@@ -153,6 +231,14 @@ class LedgerStorage extends Storage
         return $amount['amount'] ?? 0;
     }
 
+    /**
+     * Fetches the total balance of an account up to and including a specific date.
+     *
+     * @param string $account Account number.
+     * @param string $date    The threshold date (inclusive).
+     *
+     * @return float The balance sum.
+     */
     public function fetchAmountAtDateByAccount(string $account, string $date): float
     {
         $amount = $this->fetch(
@@ -166,7 +252,13 @@ class LedgerStorage extends Storage
     }
 
     /**
-     * @return array<string, float|null>
+     * Calculates the balance summary (income, expense, total) for an account within a period.
+     *
+     * @param string $account Account number.
+     * @param string $start   Start date.
+     * @param string $end     End date.
+     *
+     * @return array<string, float|null> Summary data.
      */
     public function fetchSummaryByAccount(string $account, string $start, string $end): array
     {
@@ -183,6 +275,16 @@ class LedgerStorage extends Storage
         return $summary;
     }
 
+    /**
+     * Fetches detailed ledger entries for an account within a date range for reporting.
+     * Only includes closed (assigned) and non-canceled entries.
+     *
+     * @param string $account Account number.
+     * @param string $start   Start date.
+     * @param string $end     End date.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields ledger entries.
+     */
     public function fetchForReportByAccount(string $account, string $start, string $end): Generator
     {
         return $this->fetch(
@@ -199,6 +301,14 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Fetches the total balance for all accounts in a category before a specific date.
+     *
+     * @param int    $category Category ID.
+     * @param string $date     The threshold date (exclusive).
+     *
+     * @return float The balance sum.
+     */
     public function fetchAmountBeforeDateByCategory(int $category, string $date): float
     {
         $amount = $this->fetch(
@@ -211,6 +321,14 @@ class LedgerStorage extends Storage
         return $amount['amount'] ?? 0;
     }
 
+    /**
+     * Fetches the total balance for all accounts in a category up to and including a specific date.
+     *
+     * @param int    $category Category ID.
+     * @param string $date     The threshold date (inclusive).
+     *
+     * @return float The balance sum.
+     */
     public function fetchAmountAtDateByCategory(int $category, string $date): float
     {
         $amount = $this->fetch(
@@ -224,7 +342,13 @@ class LedgerStorage extends Storage
     }
 
     /**
-     * @return array<string, float|null>
+     * Calculates the balance summary (income, expense, total) for a category within a period.
+     *
+     * @param int    $category Category ID.
+     * @param string $start    Start date.
+     * @param string $end      End date.
+     *
+     * @return array<string, float|null> Summary data.
      */
     public function fetchSummaryByCategory(int $category, string $start, string $end): array
     {
@@ -241,6 +365,16 @@ class LedgerStorage extends Storage
         return $summary;
     }
 
+    /**
+     * Fetches detailed ledger entries for a category within a date range for reporting.
+     * Only includes closed (assigned) and non-canceled entries.
+     *
+     * @param int    $category Category ID.
+     * @param string $start    Start date.
+     * @param string $end      End date.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields ledger entries.
+     */
     public function fetchForReportByCategory(int $category, string $start, string $end): Generator
     {
         return $this->fetch(
@@ -257,6 +391,14 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all canceled ledger entries within a date range.
+     *
+     * @param string $start Start date.
+     * @param string $end   End date.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields canceled ledger data arrays.
+     */
     public function fetchCanceled(string $start, string $end): Generator
     {
         return $this->fetch(
@@ -272,6 +414,12 @@ class LedgerStorage extends Storage
         );
     }
 
+    /**
+     * Fetches all unassigned, non-canceled, non-transfer ledger entries.
+     * Similar to fetchOpen() but provides more columns for detailed lists.
+     *
+     * @return Generator<int, array<string, int|string|float>> Yields ledger data arrays.
+     */
     public function fetchUnassigned(): Generator
     {
         return $this->fetch(

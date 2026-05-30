@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for canceling/removing a ledger entry.
+ */
 class LedgerRemoveHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class LedgerRemoveHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to cancel a ledger entry.
+     * Expects 'id' and 'reason' in the request body.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

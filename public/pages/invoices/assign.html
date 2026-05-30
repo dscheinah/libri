@@ -44,9 +44,17 @@
 
     const currency = {currency: 'EUR', style: 'currency'};
 
+    /**
+     * Invoice assignment page initialization.
+     * Allows linking an invoice (Beleg) to one or more ledger entries (Buchungen).
+     */
     page.register('invoices-assign', ({render, show, action, listen}) => {
         let invoice = state.get('invoice'), ledgers = state.get('ledgers-assignable') || [];
 
+        /**
+         * Checks the sum of selected ledger entries and enables/disables the submit button.
+         * The sum must exactly match the invoice amount.
+         */
         function enableSubmitBySelectedAmounts() {
             const amount = Array.from(helper.elements('#invoices-assign :checked'))
                 .reduce((amount, checkbox) =>
@@ -61,6 +69,8 @@
             helper.set('#invoices-assign-description', 'innerHTML', invoice.description);
             helper.set('#invoices-assign-amount', 'innerHTML', (invoice.amount).toLocaleString('de', currency));
             helper.set('#invoices-assign-amount', 'className', invoice.amount > 0 ? 'income' : 'expense');
+
+            // Render assignable ledger entries
             helper.list('#invoices-assign tbody', ledgers, (ledger) => {
                 const tr = document.createElement('tr'), checkbox = document.createElement('input');
                 checkbox.type ='checkbox';
@@ -80,10 +90,13 @@
             enableSubmitBySelectedAmounts();
         });
 
+        // Load assignable ledger entries when showing the page
         show(() => state.dispatch('ledgers-assignable', null));
 
+        // Re-evaluate submit button state on checkbox changes
         action('#invoices-assign', 'change', enableSubmitBySelectedAmounts);
 
+        // Handle form submission for assignment
         action('#invoices-assign', 'submit', (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
@@ -91,8 +104,10 @@
             state.dispatch('invoices-assign', formData);
         });
 
+        // Listen for state changes and re-render
         listen('invoice', (data) => invoice = data);
         listen('ledgers-assignable', (data) => ledgers = data);
+        // Navigate back after successful assignment
         listen('invoices-assign', () => {
             history.back();
         });

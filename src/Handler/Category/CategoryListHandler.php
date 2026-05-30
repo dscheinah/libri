@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler to retrieve a list of all categories.
+ */
 class CategoryListHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class CategoryListHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to list all categories.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         return $this->helper->create(200, $this->repository->listCategories());

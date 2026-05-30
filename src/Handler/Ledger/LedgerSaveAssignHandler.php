@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for assigning multiple invoices to a single ledger entry.
+ */
 class LedgerSaveAssignHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class LedgerSaveAssignHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the assignment of invoices to a ledger entry.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $data = (array) $request->getParsedBody();

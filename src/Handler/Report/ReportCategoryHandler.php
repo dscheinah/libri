@@ -9,6 +9,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response;
 
+/**
+ * Handler to generate a PDF report for one or more categories.
+ */
 class ReportCategoryHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,10 @@ class ReportCategoryHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles the request to generate a category report.
+     * Expects 'start', 'end', and 'categories' (array) as query parameters.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $queryParams = $request->getQueryParams();

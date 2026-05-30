@@ -8,6 +8,9 @@ use App\Storage\LedgerStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the LedgerRepository.
+ */
 class LedgerRepositoryFactory implements FactoryInterface
 {
     /**

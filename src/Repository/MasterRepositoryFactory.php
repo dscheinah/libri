@@ -6,6 +6,9 @@ use App\Storage\MasterStorage;
 use Sx\Container\FactoryInterface;
 use Sx\Container\Injector;
 
+/**
+ * Factory for the MasterRepository.
+ */
 class MasterRepositoryFactory implements FactoryInterface
 {
     /**

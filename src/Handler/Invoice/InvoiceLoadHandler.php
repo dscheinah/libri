@@ -8,6 +8,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Sx\Message\Response\ResponseHelperInterface;
 
+/**
+ * Handler for loading a single invoice by ID.
+ */
 class InvoiceLoadHandler implements RequestHandlerInterface
 {
     public function __construct(
@@ -16,6 +19,9 @@ class InvoiceLoadHandler implements RequestHandlerInterface
     ) {
     }
 
+    /**
+     * Handles loading an invoice by its 'id' query parameter.
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $id = $request->getQueryParams()['id'] ?? 0;
