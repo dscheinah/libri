@@ -28,6 +28,10 @@ class LedgerRemoveHandler implements RequestHandlerInterface
         $data = (array) $request->getParsedBody();
         $id = $data['id'] ?? null;
         $reason = $data['reason'] ?? null;
+        if (!$id || !$reason) {
+            return $this->helper->create(400);
+        }
+
         $this->repository->cancelLedger((int) $id, (string) $reason);
         return $this->helper->create(204);
     }
