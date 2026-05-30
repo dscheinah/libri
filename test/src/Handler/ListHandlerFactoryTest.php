@@ -2,6 +2,8 @@
 
 namespace AppTest\Handler;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
+
 use App\Handler\ListHandler;
 use App\Handler\ListHandlerFactory;
 use AppTest\Handler\Mock\ResponseHelper;
@@ -9,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Sx\Container\Injector;
 use Sx\Message\Response\ResponseHelperInterface;
 
+#[AllowMockObjectsWithoutExpectations]
 class ListHandlerFactoryTest extends TestCase
 {
     public function testCreate(): void
