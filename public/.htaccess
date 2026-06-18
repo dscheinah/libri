@@ -1,2 +1,5 @@
 DirectoryIndex index.html
 FallbackResource /index.php
+
+php_value upload_max_filesize 23M
+php_value post_max_size 23M
