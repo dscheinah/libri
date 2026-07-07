@@ -1,4 +1,5 @@
-/.env
+/.*
+!.git*
 /build/dist
 /build/node_modules
 /public/vendor
