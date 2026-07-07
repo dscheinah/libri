@@ -123,7 +123,11 @@
 
         // Refresh contacts when showing the page
         show(() => {
-           state.dispatch('contacts', null);
+            const fileUpload = helper.element('#invoices-edit-file');
+            if (fileUpload) {
+                fileUpload.value = null;
+            }
+            state.dispatch('contacts', null);
         });
 
         // Handle type radio button changes
