@@ -127,16 +127,16 @@
 
         // Handle 'create' button click to open the edit page for a new invoice
         action('#invoices [data-add]', 'click', () => {
+            page.show('invoices-edit');
             state.dispatch('invoice-preset', {});
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-contact', null);
-            page.show('invoices-edit');
         });
 
         // Handle 'more' button click to view invoice details
         action('#invoices [data-details]', 'click', (event, target) => {
-            state.dispatch('invoice', target.value);
             page.show('invoices-details');
+            state.dispatch('invoice', target.value);
         });
 
         // Update local data and re-render when invoices state changes

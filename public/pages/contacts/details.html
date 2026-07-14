@@ -73,16 +73,16 @@
 
         // Handle 'write invoice' button click
         action('#contacts-details [data-invoice]', 'click', () => {
+            page.show('invoices-edit');
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-type', 2);
             state.dispatch('invoice-contact', {id: data.id, address: data.address || data.name});
-            page.show('invoices-edit');
         });
 
         // Handle 'edit' button click
         action('#contacts-details [data-edit]', 'click', () => {
-            state.dispatch('contact-edit', true);
             page.show('contacts-edit');
+            state.dispatch('contact-edit', true);
         });
 
         // Handle 'delete' button click with confirmation

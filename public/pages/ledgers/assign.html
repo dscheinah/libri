@@ -110,10 +110,10 @@
 
         // Open invoice creation page preset with current ledger amount
         action('#ledgers-assign [data-invoice]', 'click', () => {
+            page.show('invoices-edit');
             state.dispatch('invoice-preset', ledger ? {amount: ledger.amount} : {})
             state.dispatch('invoice-edit', false);
             state.dispatch('invoice-type', 1);
-            page.show('invoices-edit');
         });
 
         // Listen for state changes and re-render

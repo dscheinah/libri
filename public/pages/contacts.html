@@ -90,14 +90,14 @@
 
         // Handle 'add contact' button click
         action('#contacts [data-add]', 'click', () => {
-            state.dispatch('contact-edit', false);
             page.show('contacts-edit');
+            state.dispatch('contact-edit', false);
         });
 
         // Handle 'more' button click to view contact details
         action('#contacts [data-contact]', 'click', (event, target) => {
-            state.dispatch('contact', parseInt(target.value));
             page.show('contacts-details');
+            state.dispatch('contact', parseInt(target.value));
         });
 
         // Update local data and re-render when contacts state changes

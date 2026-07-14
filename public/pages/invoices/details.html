@@ -173,20 +173,20 @@
 
         // Navigation to linked ledger details
         action('#invoices-details [data-ledger]', 'click', (event, target) => {
-            state.dispatch('ledger', parseInt(target.value));
             page.show('ledgers-details');
+            state.dispatch('ledger', parseInt(target.value));
         });
 
         // Navigation to contact details
         action('#invoices-details [data-contact]', 'click', (event, target) => {
-            state.dispatch('contact', parseInt(target.value));
             page.show('contacts-details');
+            state.dispatch('contact', parseInt(target.value));
         });
 
         // Open edit mode
         action('#invoices-details [data-edit]', 'click', () => {
-            state.dispatch('invoice-edit', true);
             page.show('invoices-edit');
+            state.dispatch('invoice-edit', true);
         });
 
         // Finalize invoice (generate PDF document)

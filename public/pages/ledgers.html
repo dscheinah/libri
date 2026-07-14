@@ -147,8 +147,8 @@
 
         // Handle 'more' button click to view ledger entry details
         action('#ledgers [data-details]', 'click', (event, target) => {
-            state.dispatch('ledger', target.value);
             page.show('ledgers-details');
+            state.dispatch('ledger', target.value);
         });
 
         // Update local data and re-render when relevant state changes

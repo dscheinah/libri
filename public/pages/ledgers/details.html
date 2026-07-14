@@ -106,8 +106,8 @@
 
         // Navigation to assigned invoice details
         action('#ledgers-details [data-invoice]', 'click', (event, target) => {
-            state.dispatch('invoice', target.value);
             page.show('invoices-details');
+            state.dispatch('invoice', target.value);
         });
 
         // Handle ledger entry cancellation
