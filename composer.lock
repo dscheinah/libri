@@ -88,16 +88,16 @@
         },
         {
             "name": "dscheinah/sx-css",
-            "version": "v1.0.5",
+            "version": "v1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/dscheinah/sx-css.git",
-                "reference": "dbb92f5867f968e9a3208062579b8132838d8456"
+                "reference": "ed20f5293a0ebd30dad95506aeda90cec7483d27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/dscheinah/sx-css/zipball/dbb92f5867f968e9a3208062579b8132838d8456",
-                "reference": "dbb92f5867f968e9a3208062579b8132838d8456",
+                "url": "https://api.github.com/repos/dscheinah/sx-css/zipball/ed20f5293a0ebd30dad95506aeda90cec7483d27",
+                "reference": "ed20f5293a0ebd30dad95506aeda90cec7483d27",
                 "shasum": ""
             },
             "type": "library",
@@ -108,9 +108,9 @@
             "description": "Core CSS framework used in sx applications.",
             "support": {
                 "issues": "https://github.com/dscheinah/sx-css/issues",
-                "source": "https://github.com/dscheinah/sx-css/tree/v1.0.5"
+                "source": "https://github.com/dscheinah/sx-css/tree/v1.0.6"
             },
-            "time": "2021-04-01T10:18:36+00:00"
+            "time": "2026-07-14T18:16:02+00:00"
         },
         {
             "name": "dscheinah/sx-data",
