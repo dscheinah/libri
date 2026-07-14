@@ -32,6 +32,14 @@
     };
     let accounts = state.get('accounts-real') || [];
 
+    function createIsoDateFromParts(y, m, d) {
+        y = y.toString();
+        if (y.length === 2) {
+            y = new Date().toISOString().substring(0, 2) + y;
+        }
+        return `${y.padStart(4, '0')}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+    }
+
     /**
      * Ledger import page initialization.
      * Allows importing and parsing CSV-like data, mapping columns, and transferring to the entry mask.
@@ -110,8 +118,19 @@
                 switch (fieldName) {
                     case 'date':
                         values = values.map((value) => {
-                            const ts = Date.parse(value) || Date.parse(value.replace(/(\d+)\.(\d+)\.(\d+)/, '$3-$2-$1'));
-                            return ts ? new Date(ts).toISOString().substring(0, 10) : value;
+                            if (/\d+-\d+-\d+/.test(value)) {
+                                const parts = value.split('-');
+                                return createIsoDateFromParts(parts[0], parts[1], parts[2]);
+                            }
+                            if (/\d+\.\d+\.\d+/.test(value)) {
+                                const parts = value.split('.');
+                                return createIsoDateFromParts(parts[2], parts[1], parts[0])
+                            }
+                            if (/\d+\/\d+\/\d+/.test(value)) {
+                                const parts = value.split('/');
+                                return createIsoDateFromParts(parts[2], parts[0], parts[1]);
+                            }
+                            return value;
                         });
                         break;
                     case 'amount':
