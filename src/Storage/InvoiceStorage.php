@@ -55,7 +55,7 @@ class InvoiceStorage extends Storage
             'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
                 FROM `invoices` 
                 WHERE `type` = ? 
-                ORDER BY `id` DESC',
+                ORDER BY `date` DESC',
             [$type]
         );
     }
@@ -75,7 +75,7 @@ class InvoiceStorage extends Storage
             'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
                 FROM `invoices` 
                 WHERE `type` = ? AND (`id` LIKE ? OR `description` LIKE ? OR `reference` LIKE ?) 
-                ORDER BY `id` DESC',
+                ORDER BY `date` DESC',
             [$type, $search, $search, $search]
         );
     }

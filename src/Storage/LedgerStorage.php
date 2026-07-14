@@ -82,7 +82,7 @@ class LedgerStorage extends Storage
                     LEFT JOIN `accounts` a ON a.`no` = l.`account_no`
                     LEFT JOIN `accounts` o ON o.`no` = l.`offset_no`
                 WHERE `account_no` LIKE ? AND (`id` LIKE ? OR `description` LIKE ? OR `reference` LIKE ?) 
-                ORDER BY `id` DESC',
+                ORDER BY `date` DESC',
             [$account, $search, $search, $search]
         );
     }
