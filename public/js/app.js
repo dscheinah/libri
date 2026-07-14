@@ -45,6 +45,11 @@ action.listen('#navigation-back', 'click', () => history.back());
 state.handle('loading', (payload, next) => {
     // The element is hidden by using visibility to not need extra CSS for positioning of the menu entries.
     helper.style('#loading', 'visibility', payload ? null : 'hidden');
+    if (payload) {
+        helper.element('#main').classList.add('loading');
+    } else {
+        helper.element('#main').classList.remove('loading');
+    }
     return next(payload);
 });
 // Always disable the loading animation when any loaded page is ready.

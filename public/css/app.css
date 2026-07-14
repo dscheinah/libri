@@ -29,3 +29,11 @@
 .expense {
     color: darkred;
 }
+
+#main {
+    transition: opacity .3s;
+}
+.loading {
+    opacity: .5;
+    pointer-events: none;
+}
