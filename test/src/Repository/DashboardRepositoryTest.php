@@ -27,13 +27,13 @@ class DashboardRepositoryTest extends TestCase
     public function testAccounts(): void
     {
         $sums = [
-            ['sum' => 1000.50],
-            ['sum' => -200.25]
+            ['no' => '23', 'name' => 'Test', 'sum' => 1000.50],
+            ['no' => '42', 'name' => '', 'sum' => -200.25]
         ];
         $this->ledgerStorageMock->expects($this->once())->method('sumRealAccounts')->willReturn($this->yieldData($sums));
 
         $result = $this->repository->accounts();
-        self::assertEquals(800.25, $result);
+        self::assertEquals([['name' => '23 - Test', 'amount' => 1000.50], ['name' => '42', 'amount' => -200.25]], $result);
     }
 
     public function testCategories(): void

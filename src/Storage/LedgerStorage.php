@@ -15,7 +15,8 @@ class LedgerStorage extends Storage
     public function sumRealAccounts(): Generator
     {
         return $this->fetch(
-            'SELECT `account_no`, SUM(`amount`) AS `sum` FROM `ledgers` 
+            'SELECT a.`no`, a.`name`, SUM(l.`amount`) AS `sum` FROM `ledgers` l
+            LEFT JOIN `accounts` a ON a.`no` = l.`account_no` 
             WHERE `canceled` = false GROUP BY `account_no`'
         );
     }

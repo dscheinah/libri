@@ -25,9 +25,9 @@ class LedgerStorageTest extends TestCase
     public function testSumRealAccounts(): void
     {
         $this->backendMock->expects($this->once())->method('prepare')
-            ->with(self::callback(static fn($sql) => str_contains(strtolower($sql), 'sum(`amount`) as `sum` from `ledgers`')));
+            ->with(self::callback(static fn($sql) => str_contains(strtolower($sql), 'sum(l.`amount`) as `sum` from `ledgers`')));
         $this->backendMock->expects($this->once())->method('fetch')
-            ->willReturnCallback(function () { yield ['account_no' => '1000', 'sum' => 100.0]; });
+            ->willReturnCallback(function () { yield ['no' => '1000', 'name' => 'Test', 'sum' => 100.0]; });
         $result = iterator_to_array($this->storage->sumRealAccounts());
         self::assertCount(1, $result);
     }

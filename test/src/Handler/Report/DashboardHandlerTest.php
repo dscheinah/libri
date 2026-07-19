@@ -17,18 +17,21 @@ class DashboardHandlerTest extends TestCase
     public function testHandle(): void
     {
         $repositoryMock = $this->createMock(DashboardRepository::class);
-        $repositoryMock->expects($this->once())->method('accounts')->willReturn(0.0);
-        $repositoryMock->expects($this->once())->method('categories')->willReturn([]);
-        $repositoryMock->expects($this->once())->method('problems')->willReturn([]);
+        $repositoryMock->expects($this->once())->method('accounts')->willReturn([['a']]);
+        $repositoryMock->expects($this->once())->method('categories')->willReturn([['b']]);
+        $repositoryMock->expects($this->once())->method('problems')->willReturn([['c']]);
         
         $handler = new DashboardHandler(new ResponseHelper(), $repositoryMock);
-        /** @var Response $response */
         $response = $handler->handle(new ServerRequest());
-        
+
+        $expected = [
+            'accounts' => [['a']],
+            'categories' => [['b']],
+            'problems' => [['c']],
+        ];
+
         self::assertEquals(200, $response->getStatusCode());
-        $data = $response->data;
-        self::assertArrayHasKey('accounts', $data);
-        self::assertArrayHasKey('categories', $data);
-        self::assertArrayHasKey('problems', $data);
+        assert($response instanceof Response);
+        self::assertEquals($expected, $response->data);
     }
 }

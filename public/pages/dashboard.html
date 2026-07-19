@@ -11,8 +11,7 @@
         <div class="sx-cards">
             <aside class="sx-card">
                 <h2>Gesamtabrechnung</h2>
-                Kontostand
-                <em id="dashboard-accounts"></em>
+                <table id="dashboard-accounts"></table>
                 <button data-navigation value="reports-accounts">auswählen</button>
             </aside>
             <aside class="sx-card">
@@ -52,8 +51,15 @@
 
         render(() => {
             // Display total account balance
-            helper.set('#dashboard-accounts', 'innerHTML', (data.accounts || 0).toLocaleString('de', currency));
-            helper.set('#dashboard-accounts', 'className', data.accounts < 0 ? 'expense' : 'income');
+            helper.list('#dashboard-accounts', data.accounts || [], (item) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+<th>${item.name}</th>
+<td class="${item.amount < 0 ? 'expense' : 'income'}">${item.amount.toLocaleString('de', currency)}</td>
+`;
+                return tr;
+            });
+
 
             // Render categories list
             helper.list('#dashboard-categories', data.categories || [], (item) => {

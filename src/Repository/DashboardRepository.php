@@ -19,11 +19,19 @@ class DashboardRepository
     /**
      * Calculates the total balance across all real accounts.
      *
-     * @return float The sum of all real account balances.
+     * @return list<array<string, string|float>> A list of real accounts with their names and balances.
      */
-    public function accounts(): float
+    public function accounts(): array
     {
-        return array_sum(array_column(iterator_to_array($this->ledgerStorage->sumRealAccounts()), 'sum'));
+        $accounts = [];
+        foreach ($this->ledgerStorage->sumRealAccounts() as $account) {
+            assert(is_array($account));
+            $accounts[] = [
+                'name' => implode(' - ', array_filter([$account['no'], $account['name']])),
+                'amount' => (float) $account['sum'],
+            ];
+        }
+        return $accounts;
     }
 
     /**
