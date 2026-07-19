@@ -52,7 +52,8 @@ class InvoiceStorage extends Storage
     public function fetchAll(int $type): Generator
     {
         return $this->fetch(
-            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
+            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished`, 
+                    `document` IS NOT NULL AS `has_document` 
                 FROM `invoices` 
                 WHERE `type` = ? 
                 ORDER BY `date` DESC',
@@ -72,7 +73,8 @@ class InvoiceStorage extends Storage
     {
         $search = '%' . $search . '%';
         return $this->fetch(
-            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished` 
+            'SELECT `id`, `type`, `date`, `description`, `amount`, `closed`, `reference`, `no_document`, `finished`, 
+                    `document` IS NOT NULL AS `has_document` 
                 FROM `invoices` 
                 WHERE `type` = ? AND (`id` LIKE ? OR `description` LIKE ? OR `reference` LIKE ?) 
                 ORDER BY `date` DESC',

@@ -43,7 +43,7 @@ class InvoiceRepository
                 'amount' => (float) $invoice['amount'],
                 'assigned' => (bool) $invoice['closed'],
                 'reference' => $invoice['reference'] ?? null,
-                'document' => false,
+                'document' => (bool) $invoice['has_document'],
                 'no_document' => (bool) $invoice['no_document'],
                 'finished' => (bool) $invoice['finished'],
             ];

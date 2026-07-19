@@ -42,6 +42,7 @@ class InvoiceRepositoryTest extends TestCase
                 'description' => 'Test',
                 'amount' => 100.0,
                 'closed' => 1,
+                'has_document' => 1,
                 'no_document' => 0,
                 'finished' => 1,
                 'reference' => 'REF-1'
@@ -55,6 +56,7 @@ class InvoiceRepositoryTest extends TestCase
         self::assertCount(1, $result);
         self::assertEquals(1, $result[0]['id']);
         self::assertEquals(100.0, $result[0]['amount']);
+        self::assertTrue($result[0]['document']);
         self::assertTrue($result[0]['assigned']);
         self::assertEquals('REF-1', $result[0]['reference']);
     }
