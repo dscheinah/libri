@@ -24,11 +24,13 @@
             <colgroup>
                 <col/>
                 <col/>
+                <col/>
                 <col class="sx-action"/>
             </colgroup>
             <thead>
                 <tr>
                     <th class="amount">Betrag</th>
+                    <th>Datum</th>
                     <th>Beschreibung</th>
                     <th></th>
                 </tr>
@@ -49,6 +51,7 @@
     import {helper, page, state} from '../../js/app.js';
 
     const currency = {currency: 'EUR', style: 'currency'};
+    const date = {year: '2-digit', month: '2-digit', day: '2-digit'};
 
     /**
      * Ledger assignment page initialization.
@@ -86,6 +89,7 @@
                 }
                 tr.innerHTML = `
 <td class="amount ${invoice.amount > 0 ? 'income' : 'expense'}">${invoice.amount.toLocaleString('de', currency)}</td>
+<td class="date">${new Date(invoice.date).toLocaleDateString('de', date)}</td>
 <td>${invoice.description}</td>
 <td><span class="sx-checkbox">${checkbox.outerHTML}</span></td>
 `;
