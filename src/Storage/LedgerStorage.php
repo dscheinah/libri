@@ -223,7 +223,7 @@ class LedgerStorage extends Storage
     public function fetchAmountBeforeDateByAccount(string $account, string $date): float
     {
         $amount = $this->fetch(
-            'SELECT SUM(`amount`)
+            'SELECT SUM(`amount`) AS `amount`
                 FROM `ledgers`
                 WHERE (`account_no` = ? OR `offset_no` = ?) AND `date` < ? AND `canceled` = false',
             [$account, $account, $date]
