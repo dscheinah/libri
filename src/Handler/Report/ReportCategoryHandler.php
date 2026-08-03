@@ -36,6 +36,7 @@ class ReportCategoryHandler implements RequestHandlerInterface
             (string) $queryParams['start'],
             (string) $queryParams['end'],
             (array) $queryParams['categories'],
+            (bool) ($queryParams['details'] ?? false),
         );
         $pdf->finish();
         return new Response();

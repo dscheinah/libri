@@ -129,8 +129,9 @@ class ReportRepository
      * @param string       $start    Start date (YYYY-MM-DD).
      * @param string       $end      End date (YYYY-MM-DD).
      * @param list<string> $accounts List of account numbers to include.
+     * @param bool         $details  If the detailed ledger list should be rendered.
      */
-    public function renderAccountReport(Pdf $pdf, string $start, string $end, array $accounts): void
+    public function renderAccountReport(Pdf $pdf, string $start, string $end, array $accounts, bool $details): void
     {
         $header = $this->applyOutputTranslation(['start' => $start, 'end' => $end]);
 
@@ -162,7 +163,7 @@ class ReportRepository
                 assert(is_array($ledger));
                 $ledgerRows .= $this->renderLedgerRow($ledger);
             }
-            $content .= $this->renderLedgerTable($title, $ledgerRows);
+            $content .= $this->renderLedgerTable($title, $ledgerRows, $details);
         }
 
         $pdf->addHTMLCell(
@@ -265,8 +266,9 @@ class ReportRepository
      * @param string    $start      Start date (YYYY-MM-DD).
      * @param string    $end        End date (YYYY-MM-DD).
      * @param list<int> $categories List of category IDs to include.
+     * @param bool      $details  If the detailed ledger list should be rendered.
      */
-    public function renderCategoryReport(Pdf $pdf, string $start, string $end, array $categories): void
+    public function renderCategoryReport(Pdf $pdf, string $start, string $end, array $categories, bool $details): void
     {
         $header = $this->applyOutputTranslation(['start' => $start, 'end' => $end]);
 
@@ -276,7 +278,6 @@ class ReportRepository
         $totals = ['start_amount' => 0.0, 'end_amount' => 0.0, 'total' => 0.0, 'expense' => 0.0, 'income' => 0.0];
 
         foreach ($categories as $id) {
-            $id = (int) $id;
             $category = $this->categoryStorage->fetchOne($id);
             if (!$category) {
                 continue;
@@ -297,7 +298,7 @@ class ReportRepository
                 assert(is_array($ledger));
                 $ledgerRows .= $this->renderLedgerRow($ledger);
             }
-            $content .= $this->renderLedgerTable((string) $category['name'], $ledgerRows);
+            $content .= $this->renderLedgerTable((string) $category['name'], $ledgerRows, $details);
         }
 
         $pdf->addHTMLCell(
@@ -349,7 +350,7 @@ class ReportRepository
             html: "
                 {$this->style}
                 <h1>Bericht - Probleme</h1>
-                {$this->renderLedgerTable('Buchungen ohne Beleg', $unassignedLedgerRows)}
+                {$this->renderLedgerTable('Buchungen ohne Beleg', $unassignedLedgerRows, true)}
                 {$this->renderInvoiceTable('Offene Belege & Rechnungen', $unassignedInvoiceRows)}
                 {$this->renderInvoiceTable('Fehlende Dokumente', $noDocumentInvoiceRows)}
             ",
@@ -421,8 +422,11 @@ class ReportRepository
         ";
     }
 
-    private function renderLedgerTable(string $title, string $body): string
+    private function renderLedgerTable(string $title, string $body, bool $details): string
     {
+        if (!$details) {
+            return '';
+        }
         return "
             <h2>$title</h2>
             <table>

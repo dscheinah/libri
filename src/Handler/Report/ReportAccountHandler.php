@@ -36,6 +36,7 @@ class ReportAccountHandler implements RequestHandlerInterface
             (string) $queryParams['start'],
             (string) $queryParams['end'],
             (array) $queryParams['accounts'],
+            (bool) ($queryParams['details'] ?? false),
         );
         $pdf->finish();
         return new Response();
